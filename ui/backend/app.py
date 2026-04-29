@@ -939,9 +939,8 @@ Guidelines:
     @app.get("/api/schedule")
     def get_schedule():
         from croniter import croniter
-        now = datetime.now(timezone.utc) if True else None
-        from datetime import datetime, timezone
-        now = datetime.now(timezone.utc)
+        from datetime import datetime as _dt, timezone as _tz
+        now = _dt.now(_tz.utc)
         result = []
         for job_id, job_cfg in engine.get_jobs().items():
             db_jobs = {j["id"]: j for j in store.get_jobs()}
@@ -951,9 +950,9 @@ Guidelines:
             if cron:
                 try:
                     it = croniter(cron, now)
-                    next_run = it.get_next(datetime).isoformat()
+                    next_run = it.get_next(_dt).isoformat()
                     it2 = croniter(cron, now)
-                    prev_run = it2.get_prev(datetime).isoformat()
+                    prev_run = it2.get_prev(_dt).isoformat()
                 except Exception:
                     pass
             runs = store.get_runs(job_id, limit=1)
