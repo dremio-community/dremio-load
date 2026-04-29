@@ -1,0 +1,168 @@
+# ── Dremio Load — Example Configuration ──────────────────────────────────────
+#
+# Two job types:
+#   copy_into  Use Dremio's native COPY INTO SQL (files in a Dremio-registered
+#              S3/GCS/ADLS source).  Dremio handles the file reading.
+#   direct     Load tool reads files/DB directly (S3 via boto3, Postgres, etc.)
+#              and writes to Dremio via SQL MERGE or PyIceberg.
+
+# ── Dremio / Iceberg target ────────────────────────────────────────────────────
+target:
+  mode: a                          # a = Dremio SQL sink | b = PyIceberg direct
+  host: localhost
+  port: 9047
+  ssl: false
+  user: admin
+  password: ${DREMIO_PASSWORD}     # or plain text, or vault:secret/dremio#password
+  # pat: ${DREMIO_PAT}             # PAT alternative to user/password
+
+  # Mode B (PyIceberg) — Iceberg REST catalog
+  # catalog_type: rest
+  # uri: http://localhost:8181
+  # token: ${ICEBERG_TOKEN}
+  # warehouse: my-warehouse
+  # namespace: load_target
+
+# ── Load jobs ──────────────────────────────────────────────────────────────────
+jobs:
+
+  # ── Job 1: S3 / MinIO direct load (boto3) ─────────────────────────────────
+  - id: minio_orders
+    name: "MinIO Orders"
+    source_type: s3
+    load_mode: incremental         # full | incremental
+    chunk_size: 5000
+    schedule: "0 * * * *"         # cron: every hour
+    connection:
+      bucket: dremio-test
+      prefix: orders/
+      endpoint_url: http://minio:9000
+      aws_access_key_id: minioadmin
+      aws_secret_access_key: minioadmin
+      path_style: true
+    tables:
+      - "2024/"                    # sub-prefix: reads all files under orders/2024/
+      - "2025/"
+    tables_config:
+      "2024/":
+        file_format: parquet
+      "2025/":
+        file_format: parquet
+    target_table: my_space.orders  # Dremio/Iceberg target table
+
+  # ── Job 2: COPY INTO (Dremio-native, files in registered Dremio source) ────
+  - id: s3_customers
+    name: "S3 Customers (COPY INTO)"
+    source_type: copy_into
+    schedule: "30 * * * *"        # every hour at :30
+    source_location: "@my_s3_source/customers/"
+    target_table: my_space.customers
+    file_format: parquet
+    # pattern: "*.parquet"        # optional regex filter
+
+  # ── Job 3: Postgres snapshot ───────────────────────────────────────────────
+  - id: pg_products
+    name: "Postgres Products"
+    source_type: postgres
+    load_mode: incremental
+    chunk_size: 10000
+    schedule: "0 2 * * *"        # daily at 2am
+    connection:
+      host: postgres
+      port: 5432
+      user: loader
+      password: ${PG_PASSWORD}
+      database: mydb
+    tables:
+      - public.products
+    options:
+      snapshot_cursor_column: updated_at
+    target_table: my_space.products
+
+  # ── Job 4: MySQL snapshot ──────────────────────────────────────────────────
+  - id: mysql_users
+    name: "MySQL Users"
+    source_type: mysql
+    load_mode: incremental
+    schedule: "15 * * * *"
+    connection:
+      host: mysql
+      port: 3306
+      user: loader
+      password: ${MYSQL_PASSWORD}
+      database: app_db
+    tables:
+      - users
+    options:
+      snapshot_cursor_column: updated_at
+    target_table: my_space.users
+
+# ── Options ────────────────────────────────────────────────────────────────────
+options:
+  offset_db_path: ./load_offsets.db
+  schema_db_path: ./load_schemas.db
+
+# ── Secrets (optional — HashiCorp Vault) ──────────────────────────────────────
+# secrets:
+#   vault:
+#     url: https://vault.example.com
+#     auth_method: token
+#     token: ${VAULT_TOKEN}
+#     mount: secret
+
+
+# ── Ad Platform jobs (add these under jobs: in your config.yml) ───────────────
+
+  # ── Google Ads ──────────────────────────────────────────────────────────────
+  # Requires: pip install google-ads google-auth
+  # Get credentials: https://developers.google.com/google-ads/api/docs/oauth/overview
+  # - id: google_ads_performance
+  #   name: "Google Ads Performance"
+  #   source_type: google_ads
+  #   load_mode: incremental
+  #   schedule: "0 6 * * *"
+  #   connection:
+  #     developer_token:  ${GOOGLE_ADS_DEVELOPER_TOKEN}
+  #     client_id:        ${GOOGLE_ADS_CLIENT_ID}
+  #     client_secret:    ${GOOGLE_ADS_CLIENT_SECRET}
+  #     refresh_token:    ${GOOGLE_ADS_REFRESH_TOKEN}
+  #     customer_id:      "1234567890"
+  #     # login_customer_id: "9999999999"   # MCC manager account (if applicable)
+  #   tables:
+  #     - campaigns
+  #     - ad_groups
+  #     - campaign_performance
+  #     - ad_group_performance
+  #     - search_terms
+  #   tables_config:
+  #     campaign_performance:
+  #       date_range_days: 30
+  #     ad_group_performance:
+  #       date_range_days: 30
+  #     search_terms:
+  #       date_range_days: 7
+  #   target_table: marketing.google_ads
+
+  # ── LinkedIn Ads ─────────────────────────────────────────────────────────────
+  # Requires: requests (already included)
+  # Get token: https://www.linkedin.com/developers/apps — Marketing Developer Platform
+  # - id: linkedin_ads_performance
+  #   name: "LinkedIn Ads Performance"
+  #   source_type: linkedin_ads
+  #   load_mode: incremental
+  #   schedule: "0 7 * * *"
+  #   connection:
+  #     access_token: ${LINKEDIN_ADS_ACCESS_TOKEN}
+  #     account_id:   "123456789"
+  #   tables:
+  #     - campaigns
+  #     - campaign_groups
+  #     - creatives
+  #     - ad_analytics
+  #     - ad_analytics_creative
+  #   tables_config:
+  #     ad_analytics:
+  #       date_range_days: 30
+  #     ad_analytics_creative:
+  #       date_range_days: 30
+  #   target_table: marketing.linkedin_ads

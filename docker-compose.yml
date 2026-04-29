@@ -1,0 +1,12 @@
+services:
+  dremio-load:
+    image: mshainman/dremio-load:latest
+    build: .
+    ports:
+      - "7071:7071"
+    volumes:
+      - ./data:/data
+    environment:
+      - LOAD_DB_PATH=/data/load_ui.db
+      - UI_PORT=7071
+    restart: unless-stopped
