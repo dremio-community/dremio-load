@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BrowserRouter, NavLink, Route, Routes } from 'react-router-dom'
-import { Briefcase, Database, History, Settings, Upload, GitBranch, Activity, Search, Bot } from 'lucide-react'
+import { Briefcase, Database, History, Settings, Upload, GitBranch, Activity, Search, Bot, CalendarClock } from 'lucide-react'
 import JobsPage from './components/JobsPage'
 import RunsPage from './components/RunsPage'
 import TargetPage from './components/TargetPage'
@@ -10,17 +10,19 @@ import PipelinePage from './components/PipelinePage'
 import HealthPage from './components/HealthPage'
 import ExplorerPage from './components/ExplorerPage'
 import AgentPage from './components/AgentPage'
+import SchedulerPage from './components/SchedulerPage'
 import { getAgentSettings } from './api/client'
 
 const NAV_STATIC = [
-  { to: '/',          icon: Briefcase,  label: 'Jobs / Sources' },
-  { to: '/runs',      icon: History,    label: 'Runs'      },
-  { to: '/pipeline',  icon: GitBranch,  label: 'Pipeline'  },
-  { to: '/health',    icon: Activity,   label: 'Health'    },
-  { to: '/explorer',  icon: Search,     label: 'Explorer'  },
-  { to: '/copy-into', icon: Upload,     label: 'Copy Into' },
-  { to: '/target',    icon: Database,   label: 'Target'    },
-  { to: '/settings',  icon: Settings,   label: 'Settings'  },
+  { to: '/',           icon: Briefcase,    label: 'Jobs / Sources' },
+  { to: '/runs',       icon: History,      label: 'Runs'      },
+  { to: '/scheduler',  icon: CalendarClock, label: 'Scheduler' },
+  { to: '/pipeline',   icon: GitBranch,    label: 'Pipeline'  },
+  { to: '/health',     icon: Activity,     label: 'Health'    },
+  { to: '/explorer',   icon: Search,       label: 'Explorer'  },
+  { to: '/copy-into',  icon: Upload,       label: 'Copy Into' },
+  { to: '/target',     icon: Database,     label: 'Target'    },
+  { to: '/settings',   icon: Settings,     label: 'Settings'  },
 ]
 
 export default function App() {
@@ -65,6 +67,7 @@ export default function App() {
           <Routes>
             <Route path="/"          element={<JobsPage />} />
             <Route path="/runs"      element={<RunsPage />} />
+            <Route path="/scheduler" element={<SchedulerPage />} />
             <Route path="/pipeline"  element={<PipelinePage />} />
             <Route path="/health"    element={<HealthPage />} />
             <Route path="/explorer"  element={<ExplorerPage />} />

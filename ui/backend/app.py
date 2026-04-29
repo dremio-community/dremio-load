@@ -29,6 +29,7 @@ SOURCE_TYPE_LABELS = {
     "pinot": "Apache Pinot", "splunk": "Splunk",
     "cassandra": "Apache Cassandra", "clickhouse": "ClickHouse",
     "databricks": "Databricks", "copy_into": "COPY INTO",
+    "google_ads": "Google Ads", "linkedin_ads": "LinkedIn Ads",
 }
 
 def _source_label(job_cfg: Dict) -> str:
@@ -932,6 +933,62 @@ Guidelines:
         except Exception as exc:
             logger.error("Agent chat error: %s", exc, exc_info=True)
             return jsonify({"error": str(exc)}), 500
+
+    # ── Schedule ──────────────────────────────────────────────────────────────
+
+    @app.get("/api/schedule")
+    def get_schedule():
+        from croniter import croniter
+        now = datetime.now(timezone.utc) if True else None
+        from datetime import datetime, timezone
+        now = datetime.now(timezone.utc)
+        result = []
+        for job_id, job_cfg in engine.get_jobs().items():
+            db_jobs = {j["id"]: j for j in store.get_jobs()}
+            db = db_jobs.get(job_id, {})
+            cron = job_cfg.get("schedule")
+            next_run = prev_run = None
+            if cron:
+                try:
+                    it = croniter(cron, now)
+                    next_run = it.get_next(datetime).isoformat()
+                    it2 = croniter(cron, now)
+                    prev_run = it2.get_prev(datetime).isoformat()
+                except Exception:
+                    pass
+            runs = store.get_runs(job_id, limit=1)
+            last = runs[0] if runs else None
+            result.append({
+                "id": job_id,
+                "name": job_cfg.get("name", job_id),
+                "source_type": job_cfg.get("source_type"),
+                "schedule": cron,
+                "enabled": bool(db.get("enabled", 1)),
+                "next_run": next_run,
+                "prev_run": prev_run,
+                "load_mode": job_cfg.get("load_mode", "incremental"),
+                "last_status": last.get("status") if last else None,
+                "last_run_at": last.get("started_at") if last else None,
+                "running": job_id in engine._running and engine._running[job_id].is_alive(),
+            })
+        # Sort by next_run ascending
+        result.sort(key=lambda x: x.get("next_run") or "9999")
+        return jsonify(result)
+
+    @app.put("/api/schedule/<job_id>")
+    def update_schedule(job_id):
+        body = request.json or {}
+        jobs = engine.get_jobs()
+        if job_id not in jobs:
+            return jsonify({"error": "not found"}), 404
+        job_cfg = dict(jobs[job_id])
+        if "schedule" in body:
+            job_cfg["schedule"] = body["schedule"]
+        if "enabled" in body:
+            store.set_job_enabled(job_id, bool(body["enabled"]))
+        engine.add_job(job_id, job_cfg)
+        store.upsert_job(job_id, job_cfg.get("name", job_id), job_cfg)
+        return jsonify({"ok": True})
 
     # ── Static SPA ────────────────────────────────────────────────────────────
 

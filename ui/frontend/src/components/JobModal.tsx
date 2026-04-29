@@ -60,9 +60,16 @@ const SOURCE_GROUPS = [
   {
     label: 'SaaS & CRM',
     options: [
-      { value: 'salesforce',  label: 'Salesforce' },
-      { value: 'hubspot',     label: 'HubSpot' },
-      { value: 'zendesk',     label: 'Zendesk' },
+      { value: 'salesforce',   label: 'Salesforce' },
+      { value: 'hubspot',      label: 'HubSpot' },
+      { value: 'zendesk',      label: 'Zendesk' },
+    ],
+  },
+  {
+    label: 'Ad Platforms',
+    options: [
+      { value: 'google_ads',   label: 'Google Ads' },
+      { value: 'linkedin_ads', label: 'LinkedIn Ads' },
     ],
   },
   {
@@ -72,6 +79,19 @@ const SOURCE_GROUPS = [
     ],
   },
 ]
+
+const DEFAULT_TABLES: Record<string, string> = {
+  google_ads:   'campaigns, ad_groups, campaign_performance, ad_group_performance, search_terms',
+  linkedin_ads: 'campaigns, campaign_groups, ad_analytics',
+  salesforce:   'Account, Contact, Opportunity, Lead',
+  hubspot:      'contacts, companies, deals, tickets',
+  zendesk:      'tickets, users, organizations',
+}
+
+const HELP_LINKS: Record<string, { label: string; url: string }> = {
+  google_ads:   { label: 'How to get Google Ads API credentials →', url: 'https://developers.google.com/google-ads/api/docs/oauth/overview' },
+  linkedin_ads: { label: 'How to get a LinkedIn Ads access token →', url: 'https://learn.microsoft.com/en-us/linkedin/marketing/getting-access' },
+}
 
 const LOAD_MODES = [
   { value: 'full',        label: 'Full snapshot (MERGE)' },
@@ -244,6 +264,18 @@ const FIELDS: Record<string, FieldDef[]> = {
     { key: 'email',     label: 'Agent Email', placeholder: 'you@company.com' },
     { key: 'token',     label: 'API Token',   placeholder: '${ZENDESK_TOKEN}', secret: true, span: 2 },
   ],
+  google_ads: [
+    { key: 'developer_token', label: 'Developer Token',  placeholder: 'From ads.google.com → Admin → API Center', secret: true, span: 2 },
+    { key: 'client_id',       label: 'OAuth Client ID',  placeholder: 'From Google Cloud Console → Credentials', span: 2 },
+    { key: 'client_secret',   label: 'OAuth Client Secret', placeholder: 'From Google Cloud Console → Credentials', secret: true, span: 2 },
+    { key: 'refresh_token',   label: 'Refresh Token',    placeholder: 'Generated via OAuth flow', secret: true, span: 2 },
+    { key: 'customer_id',     label: 'Customer ID',      placeholder: '1234567890  (10-digit, no dashes)' },
+    { key: 'login_customer_id', label: 'Manager Account ID (optional)', placeholder: 'MCC account ID if using a manager account' },
+  ],
+  linkedin_ads: [
+    { key: 'access_token', label: 'Access Token', placeholder: 'From linkedin.com/developers → your app → Auth tab', secret: true, span: 2 },
+    { key: 'account_id',   label: 'Ad Account ID', placeholder: '123456789  (from Campaign Manager URL)' },
+  ],
 }
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -279,7 +311,12 @@ export default function JobModal({ job, onClose, onSaved }: Props) {
     }
   }
 
-  useEffect(() => { if (!isEdit) setConn({}) }, [sourceType])
+  useEffect(() => {
+    if (!isEdit) {
+      setConn({})
+      if (DEFAULT_TABLES[sourceType]) setTables(DEFAULT_TABLES[sourceType])
+    }
+  }, [sourceType])
 
   const fields = FIELDS[sourceType] ?? []
   const isStorage = ['s3', 'azure_blob', 'adls', 'gcs', 's3_compat'].includes(sourceType)
@@ -430,7 +467,15 @@ export default function JobModal({ job, onClose, onSaved }: Props) {
         {/* Connection fields */}
         {fields.length > 0 && (
           <>
-            <div style={sectionDivider}>Connection</div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', ...sectionDivider }}>
+              <span>Connection</span>
+              {HELP_LINKS[sourceType] && (
+                <a href={HELP_LINKS[sourceType].url} target="_blank" rel="noopener noreferrer"
+                  style={{ fontSize: 11, color: '#38bdf8', textDecoration: 'none', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>
+                  {HELP_LINKS[sourceType].label}
+                </a>
+              )}
+            </div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
               {fields.map(f => (
                 <div key={f.key} style={f.span === 2 ? { gridColumn: '1 / -1' } : {}}>
