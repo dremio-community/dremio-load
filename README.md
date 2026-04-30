@@ -5,7 +5,7 @@ A data ingestion tool that loads data from 25+ sources into Dremio (Apache Icebe
 [![Docker Hub](https://img.shields.io/docker/pulls/mshainman/dremio-load?style=flat-square&logo=docker)](https://hub.docker.com/r/mshainman/dremio-load)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square)](LICENSE)
 
-**Docker Hub:** [hub.docker.com/r/mshainman/dremio-load](https://hub.docker.com/r/mshainman/dremio-load)
+**Docker Hub:** [hub.docker.com/r/mshainman/dremio-load](https://hub.docker.com/r/mshainman/dremio-load) &nbsp;·&nbsp; **[Visual User Guide](docs/VISUAL_GUIDE.html)** &nbsp;·&nbsp; **[User Guide](USER_GUIDE.md)**
 
 ```bash
 docker pull mshainman/dremio-load:latest
