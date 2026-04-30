@@ -324,3 +324,6 @@ WHEN NOT MATCHED THEN INSERT ({insert_cols}) VALUES ({insert_vals})
             for pk in pks
         )
         self._sql(f"DELETE FROM {path} WHERE {where}")
+
+    def close(self):
+        self._session = None

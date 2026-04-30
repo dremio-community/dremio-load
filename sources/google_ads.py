@@ -46,7 +46,6 @@ _QUERIES: Dict[str, str] = {
         SELECT
             campaign.id, campaign.name, campaign.status,
             campaign.advertising_channel_type, campaign.bidding_strategy_type,
-            campaign.start_date, campaign.end_date,
             campaign_budget.amount_micros, campaign.optimization_score
         FROM campaign
         ORDER BY campaign.id
@@ -91,7 +90,7 @@ _QUERIES: Dict[str, str] = {
             metrics.impressions, metrics.clicks, metrics.cost_micros,
             metrics.conversions, metrics.conversions_value,
             metrics.ctr, metrics.average_cpc,
-            metrics.video_views, metrics.view_through_conversions
+            metrics.view_through_conversions
         FROM campaign
         WHERE segments.date >= '{start_date}' AND segments.date <= '{end_date}'
         ORDER BY segments.date, campaign.id
@@ -135,7 +134,7 @@ _QUERIES: Dict[str, str] = {
     """,
     "audience_performance": """
         SELECT
-            user_list.id, user_list.name,
+            ad_group_audience_view.resource_name,
             ad_group.id, ad_group.name,
             campaign.id, campaign.name,
             segments.date,
@@ -155,8 +154,6 @@ _SCHEMAS: Dict[str, List[ColumnSchema]] = {
         ColumnSchema("status",                     "varchar"),
         ColumnSchema("advertising_channel_type",   "varchar"),
         ColumnSchema("bidding_strategy_type",      "varchar"),
-        ColumnSchema("start_date",                 "varchar"),
-        ColumnSchema("end_date",                   "varchar"),
         ColumnSchema("budget_amount_micros",       "bigint"),
         ColumnSchema("optimization_score",         "double"),
     ],
@@ -206,7 +203,6 @@ _SCHEMAS: Dict[str, List[ColumnSchema]] = {
         ColumnSchema("conversions_value",       "double"),
         ColumnSchema("ctr",                     "double"),
         ColumnSchema("average_cpc",             "double"),
-        ColumnSchema("video_views",             "bigint"),
         ColumnSchema("view_through_conversions","bigint"),
     ],
     "ad_group_performance": [
@@ -251,8 +247,7 @@ _SCHEMAS: Dict[str, List[ColumnSchema]] = {
         ColumnSchema("ctr",                  "double"),
     ],
     "audience_performance": [
-        ColumnSchema("user_list_id",   "bigint"),
-        ColumnSchema("user_list_name", "varchar"),
+        ColumnSchema("resource_name",  "varchar"),
         ColumnSchema("ad_group_id",    "bigint"),
         ColumnSchema("ad_group_name",  "varchar"),
         ColumnSchema("campaign_id",    "bigint"),
@@ -325,8 +320,6 @@ def _map_row(table: str, raw: Dict[str, Any]) -> Dict[str, Any]:
             "status":                   raw.get("campaign_status") or raw.get("status"),
             "advertising_channel_type": raw.get("campaign_advertisingChannelType"),
             "bidding_strategy_type":    raw.get("campaign_biddingStrategyType"),
-            "start_date":               raw.get("campaign_startDate"),
-            "end_date":                 raw.get("campaign_endDate"),
             "budget_amount_micros":     raw.get("campaignBudget_amountMicros"),
             "optimization_score":       raw.get("campaign_optimizationScore"),
         },
@@ -421,8 +414,7 @@ def _map_row(table: str, raw: Dict[str, Any]) -> Dict[str, Any]:
             "ctr":                  raw.get("metrics_ctr"),
         },
         "audience_performance": {
-            "user_list_id":   raw.get("userList_id"),
-            "user_list_name": raw.get("userList_name"),
+            "resource_name":  raw.get("adGroupAudienceView_resourceName"),
             "ad_group_id":    raw.get("adGroup_id"),
             "ad_group_name":  raw.get("adGroup_name"),
             "campaign_id":    raw.get("campaign_id"),
@@ -446,9 +438,11 @@ class GoogleAdsSource(LoadSource):
         self._client_id        = conn.get("client_id", "")
         self._client_secret    = conn.get("client_secret", "")
         self._refresh_token    = conn.get("refresh_token", "")
-        self._customer_id      = str(conn.get("customer_id", "")).replace("-", "")
+        self._customer_id       = str(conn.get("customer_id", "")).replace("-", "")
         self._login_customer_id = str(conn.get("login_customer_id", "")).replace("-", "") or None
-        self._client           = None
+        self._client             = None
+        self._metric_customer_id = self._customer_id
+        self._is_manager_no_clients = False
 
     def connect(self):
         from google.ads.googleads.client import GoogleAdsClient
@@ -463,13 +457,41 @@ class GoogleAdsSource(LoadSource):
             credentials["login_customer_id"] = self._login_customer_id
 
         self._client = GoogleAdsClient.load_from_dict(credentials)
-        # Verify connectivity
         ga_service = self._client.get_service("GoogleAdsService")
-        response = ga_service.search(
+
+        # Check if this is a manager account; if so, find a usable client account
+        result = ga_service.search(
             customer_id=self._customer_id,
-            query="SELECT customer.id FROM customer LIMIT 1",
+            query="SELECT customer.id, customer.manager FROM customer LIMIT 1",
         )
-        list(response)
+        rows = list(result)
+        is_manager = rows[0].customer.manager if rows else False
+
+        self._metric_customer_id = self._customer_id
+        if is_manager:
+            # Find accessible non-manager client accounts
+            clients = ga_service.search(
+                customer_id=self._customer_id,
+                query=(
+                    "SELECT customer_client.id, customer_client.manager "
+                    "FROM customer_client "
+                    "WHERE customer_client.manager = false AND customer_client.status = 'ENABLED'"
+                ),
+            )
+            client_ids = [str(r.customer_client.id) for r in clients]
+            if client_ids:
+                self._metric_customer_id = client_ids[0]
+                logger.info(
+                    "[google_ads/%s] Manager account detected; using client %s for metrics",
+                    self.name, self._metric_customer_id,
+                )
+            else:
+                self._is_manager_no_clients = True
+                logger.warning(
+                    "[google_ads/%s] Manager account with no accessible client accounts — "
+                    "metrics tables will be empty", self.name,
+                )
+
         logger.info("[google_ads/%s] Connected to customer %s", self.name, self._customer_id)
 
     def get_schema(self, table: str) -> List[ColumnSchema]:
@@ -494,13 +516,13 @@ class GoogleAdsSource(LoadSource):
 
         return start_date, end_date
 
-    def _run_query(self, query: str) -> List[Dict[str, Any]]:
+    def _run_query(self, query: str, customer_id: str = None) -> List[Dict[str, Any]]:
         from google.protobuf import json_format
         import json
 
         ga_service = self._client.get_service("GoogleAdsService")
         response = ga_service.search(
-            customer_id=self._customer_id,
+            customer_id=customer_id or self._customer_id,
             query=query.strip(),
         )
         rows = []
@@ -526,12 +548,15 @@ class GoogleAdsSource(LoadSource):
     def snapshot(self, table: str) -> Generator[ChangeEvent, None, None]:
         schema = self.get_schema(table)
         if table in _PERF_TABLES:
+            if self._is_manager_no_clients:
+                logger.info("[google_ads/%s/%s] Skipping — manager account has no client accounts", self.name, table)
+                return
             start_date, end_date = self._date_range(table)
             query = _QUERIES[table].format(start_date=start_date, end_date=end_date)
+            rows = self._run_query(query, customer_id=self._metric_customer_id)
         else:
             query = _QUERIES[table]
-
-        rows = self._run_query(query)
+            rows = self._run_query(query)
         logger.info("[google_ads/%s/%s] Snapshot — %d rows", self.name, table, len(rows))
 
         for raw in rows:
@@ -550,16 +575,18 @@ class GoogleAdsSource(LoadSource):
         schema = self.get_schema(table)
 
         if table in _PERF_TABLES:
+            if self._is_manager_no_clients:
+                logger.info("[google_ads/%s/%s] Skipping — manager account has no client accounts", self.name, table)
+                return
             start_date, end_date = self._date_range(table, start_after)
             if start_date > end_date:
                 logger.info("[google_ads/%s/%s] Already up to date", self.name, table)
                 return
             query = _QUERIES[table].format(start_date=start_date, end_date=end_date)
+            rows = self._run_query(query, customer_id=self._metric_customer_id)
         else:
-            # Entity tables: always full refresh (no delta API)
             query = _QUERIES[table]
-
-        rows = self._run_query(query)
+            rows = self._run_query(query)
         logger.info("[google_ads/%s/%s] Incremental — %d rows (since %s)",
                     self.name, table, len(rows), start_after)
 

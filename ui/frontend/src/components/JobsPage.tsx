@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
-  CheckCircle, XCircle, Clock, Play, RefreshCw, Plus,
-  Pause, Trash2, ChevronDown, ChevronUp, Loader2,
+  CheckCircle, XCircle, Clock, Play, Pencil, Plus,
+  Pause, Trash2, ChevronDown, ChevronUp, Loader2, RefreshCw,
 } from 'lucide-react'
 import {
   getJobs, triggerJob, setJobEnabled, deleteJob,
@@ -151,7 +151,7 @@ export default function JobsPage() {
                     style={btnSmall}
                     title="Edit"
                   >
-                    <RefreshCw size={13} />
+                    <Pencil size={13} />
                   </button>
                   <button
                     onClick={() => handleDelete(job)}

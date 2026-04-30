@@ -1,9 +1,13 @@
 """Flask REST API + SPA serving for Dremio Load UI."""
 from __future__ import annotations
 
+import base64
 import json
 import logging
 import os
+import secrets as _secrets
+import urllib.parse
+import urllib.request
 from typing import Any, Dict
 
 from flask import Flask, jsonify, request, send_from_directory
@@ -61,6 +65,16 @@ def create_app(engine, cfg: Dict[str, Any]) -> Flask:
             config=job_cfg,
             enabled=True,
         )
+
+    # Restore any UI-created jobs from the DB that aren't in the config
+    for db_job in store.get_jobs():
+        job_id = db_job["id"]
+        if job_id not in engine.get_jobs() and db_job.get("enabled", 1):
+            try:
+                job_cfg = json.loads(db_job["config_json"])
+                engine.add_job(job_id, job_cfg)
+            except Exception:
+                pass
 
     # Wire run completion to store
     original_on_run = engine._on_run_complete
@@ -988,6 +1002,89 @@ Guidelines:
         engine.add_job(job_id, job_cfg)
         store.upsert_job(job_id, job_cfg.get("name", job_id), job_cfg)
         return jsonify({"ok": True})
+
+    # ── Google Ads OAuth ──────────────────────────────────────────────────────
+
+    _gads_pending: dict = {}   # state -> {client_id, client_secret}
+    _gads_done: dict    = {}   # state -> {refresh_token, email}
+
+    GADS_REDIRECT = "http://localhost:7071/api/oauth/google-ads/callback"
+    GADS_SCOPE    = "https://www.googleapis.com/auth/adwords"
+
+    @app.post("/api/oauth/google-ads/start")
+    def google_ads_oauth_start():
+        body = request.json or {}
+        client_id     = body.get("client_id", "").strip()
+        client_secret = body.get("client_secret", "").strip()
+        if not client_id or not client_secret:
+            return jsonify({"error": "client_id and client_secret are required"}), 400
+        state = _secrets.token_urlsafe(16)
+        _gads_pending[state] = {"client_id": client_id, "client_secret": client_secret}
+        params = urllib.parse.urlencode({
+            "client_id":     client_id,
+            "response_type": "code",
+            "scope":         GADS_SCOPE,
+            "redirect_uri":  GADS_REDIRECT,
+            "access_type":   "offline",
+            "prompt":        "consent",
+            "state":         state,
+        })
+        return jsonify({"auth_url": f"https://accounts.google.com/o/oauth2/auth?{params}", "state": state})
+
+    @app.get("/api/oauth/google-ads/callback")
+    def google_ads_oauth_callback():
+        code  = request.args.get("code", "")
+        state = request.args.get("state", "")
+        error = request.args.get("error", "")
+
+        def _html(title, color, msg, close=False):
+            script = "<script>setTimeout(()=>window.close(),2000)</script>" if close else ""
+            return f"""<html><head><title>{title}</title></head>
+<body style="font-family:-apple-system,sans-serif;text-align:center;padding:60px;background:#0f172a;color:#e2e8f0">
+<div style="font-size:48px;margin-bottom:16px">{"✓" if close else "✗"}</div>
+<h2 style="color:{color};margin:0 0 8px">{title}</h2>
+<p style="color:#94a3b8">{msg}</p>{script}
+</body></html>"""
+
+        if error or not code or state not in _gads_pending:
+            return _html("Authorization failed", "#ef4444", error or "Invalid state. Please try again."), 400
+
+        ctx = _gads_pending.pop(state)
+        token_body = urllib.parse.urlencode({
+            "code":          code,
+            "client_id":     ctx["client_id"],
+            "client_secret": ctx["client_secret"],
+            "redirect_uri":  GADS_REDIRECT,
+            "grant_type":    "authorization_code",
+        }).encode()
+
+        try:
+            req = urllib.request.Request("https://oauth2.googleapis.com/token", data=token_body, method="POST")
+            with urllib.request.urlopen(req) as resp:
+                data = json.loads(resp.read())
+        except Exception as exc:
+            return _html("Token exchange failed", "#ef4444", str(exc)), 500
+
+        refresh_token = data.get("refresh_token", "")
+        email = ""
+        try:
+            id_token = data.get("id_token", "")
+            if id_token:
+                segment = id_token.split(".")[1]
+                segment += "=" * (4 - len(segment) % 4)
+                email = json.loads(base64.b64decode(segment)).get("email", "")
+        except Exception:
+            pass
+
+        _gads_done[state] = {"refresh_token": refresh_token, "email": email}
+        return _html("Connected to Google Ads!", "#34d399",
+                     f"Authorized as {email or 'your Google account'}. You can close this window.", close=True)
+
+    @app.get("/api/oauth/google-ads/result/<state>")
+    def google_ads_oauth_result(state):
+        if state in _gads_done:
+            return jsonify(_gads_done.pop(state))
+        return jsonify({"pending": True})
 
     # ── Static SPA ────────────────────────────────────────────────────────────
 
