@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { RefreshCw, ArrowRight, CheckCircle, XCircle, AlertCircle, Clock } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { RefreshCw, ArrowRight, CheckCircle, XCircle, AlertCircle, Clock, ExternalLink } from 'lucide-react'
 import { getPipelineOverview } from '../api/client'
 
 interface JobOverview {
@@ -68,17 +69,27 @@ export default function PipelinePage() {
 }
 
 function PipelineCard({ job }: { job: JobOverview }) {
+  const navigate = useNavigate()
   const srcColor = SOURCE_COLORS[job.source_type] ?? '#64748b'
   const lastStatus = job.last_run?.status
   const modeLabel = job.target_mode === 'b' ? 'PyIceberg Direct' : 'Dremio SQL'
+  const [srcHover, setSrcHover] = useState(false)
+  const [tgtHover, setTgtHover] = useState(false)
 
   return (
-    <div style={card}>
+    <div style={{ ...card, cursor: 'pointer' }} onClick={() => navigate(`/pipeline/${job.id}`)}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-        {/* Source block */}
-        <div style={{ ...block, borderColor: srcColor, minWidth: 160 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: srcColor, textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
-            Source
+        {/* Source block — click to edit job connection */}
+        <div
+          onClick={(e) => { e.stopPropagation(); navigate('/jobs') }}
+          onMouseEnter={() => setSrcHover(true)}
+          onMouseLeave={() => setSrcHover(false)}
+          title="Click to edit job"
+          style={{ ...block, borderColor: srcHover ? srcColor : `${srcColor}88`, minWidth: 160, cursor: 'pointer', transition: 'border-color 0.15s, background 0.15s', background: srcHover ? '#1a2236' : '#0f172a' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: srcColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Source</div>
+            {srcHover && <ExternalLink size={10} color={srcColor} />}
           </div>
           <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{job.source_label}</div>
           {job.tables.length > 0 && (
@@ -108,13 +119,20 @@ function PipelineCard({ job }: { job: JobOverview }) {
 
         <ArrowRight size={16} color="#334155" />
 
-        {/* Target block */}
-        <div style={{ ...block, borderColor: '#0ea5e9', minWidth: 200 }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 4 }}>
-            Target · {modeLabel}
+        {/* Target block — click to go to target settings */}
+        <div
+          onClick={(e) => { e.stopPropagation(); navigate('/target') }}
+          onMouseEnter={() => setTgtHover(true)}
+          onMouseLeave={() => setTgtHover(false)}
+          title="Click to configure target"
+          style={{ ...block, borderColor: tgtHover ? '#0ea5e9' : '#0ea5e988', minWidth: 200, cursor: 'pointer', transition: 'border-color 0.15s, background 0.15s', background: tgtHover ? '#0f1f2e' : '#0f172a' }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
+            <div style={{ fontSize: 10, fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Target · {modeLabel}</div>
+            {tgtHover && <ExternalLink size={10} color="#38bdf8" />}
           </div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{job.target_host}</div>
-          <div style={{ fontSize: 11, color: '#64748b', marginTop: 3 }}>{job.target_table}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{job.target_host || 'Not configured'}</div>
+          <div style={{ fontSize: 11, color: '#64748b', marginTop: 3 }}>{job.target_table || 'Click to set up →'}</div>
         </div>
 
         {/* Status */}

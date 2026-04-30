@@ -7,6 +7,7 @@ import TargetPage from './components/TargetPage'
 import SettingsPage from './components/SettingsPage'
 import CopyIntoPage from './components/CopyIntoPage'
 import PipelinePage from './components/PipelinePage'
+import PipelineDetailPage from './components/PipelineDetailPage'
 import HealthPage from './components/HealthPage'
 import ExplorerPage from './components/ExplorerPage'
 import AgentPage from './components/AgentPage'
@@ -69,6 +70,7 @@ export default function App() {
             <Route path="/runs"      element={<RunsPage />} />
             <Route path="/scheduler" element={<SchedulerPage />} />
             <Route path="/pipeline"  element={<PipelinePage />} />
+            <Route path="/pipeline/:jobId" element={<PipelineDetailPage />} />
             <Route path="/health"    element={<HealthPage />} />
             <Route path="/explorer"  element={<ExplorerPage />} />
             <Route path="/agent"     element={<AgentPage />} />

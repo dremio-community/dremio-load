@@ -107,3 +107,5 @@ export const getSourcePreview     = (jobId: string, table: string) =>
 export const getAgentSettings  = ()           => api("GET", "/api/settings/agent")
 export const saveAgentSettings = (b: unknown) => api("PUT", "/api/settings/agent", b)
 export const agentChat         = (messages: unknown[]) => api("POST", "/api/agent/chat", { messages })
+
+export const getJob = (id: string) => api("GET", `/api/jobs/${id}`)

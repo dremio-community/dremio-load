@@ -1,6 +1,15 @@
 # Dremio Load
 
-A data ingestion framework that loads data from 25+ sources into Dremio (Apache Iceberg tables) via scheduled batch jobs. Supports full and incremental load modes, schema evolution, PII masking, offset tracking, and webhook notifications.
+A data ingestion tool that loads data from 25+ sources into Dremio (Apache Iceberg tables) via scheduled batch jobs. Includes a full web UI for managing jobs, viewing run history, and monitoring pipeline health.
+
+[![Docker Hub](https://img.shields.io/docker/pulls/mshainman/dremio-load?style=flat-square&logo=docker)](https://hub.docker.com/r/mshainman/dremio-load)
+[![License](https://img.shields.io/badge/license-Apache--2.0-blue?style=flat-square)](LICENSE)
+
+**Docker Hub:** [hub.docker.com/r/mshainman/dremio-load](https://hub.docker.com/r/mshainman/dremio-load)
+
+```bash
+docker pull mshainman/dremio-load:latest
+```
 
 ## Sources
 
@@ -13,7 +22,7 @@ A data ingestion framework that loads data from 25+ sources into Dremio (Apache 
 | **SaaS / CRM** | Salesforce, HubSpot, Zendesk |
 | **Ad Platforms** | Google Ads, LinkedIn Ads |
 | **NoSQL / Cloud DB** | DynamoDB, Cosmos DB, Google Cloud Spanner, Apache Pinot |
-| **Other** | Splunk |
+| **Other** | Splunk, COPY INTO (Dremio-native file ingest) |
 
 ## Architecture
 
@@ -28,24 +37,40 @@ Source (read) ──► ETL Engine ──► Dremio / Iceberg (write)
 
 Two write modes:
 - **Mode A** — Dremio SQL sink (MERGE / INSERT via REST API)
-- **Mode B** — PyIceberg direct write (no Dremio required)
+- **Mode B** — PyIceberg direct write (no Dremio SQL layer required)
 
 ## Quick Start
 
 ### Docker (recommended)
 
 ```bash
-# Copy and edit the config
-cp config.example.yml config.yml
-vi config.yml
+# 1. Create a named volume for persistent config and job state
+docker volume create dremio-load-data
 
-# Start
+# 2. Seed a minimal config (required on first run)
+docker run --rm -v dremio-load-data:/data busybox \
+  sh -c "echo 'jobs: []\ntarget: {}' > /data/config.yml"
+
+# 3. Run the container
+docker run -d \
+  --name dremio-load \
+  -p 7071:7071 \
+  -v dremio-load-data:/data \
+  mshainman/dremio-load:latest
+```
+
+The UI is available at `http://localhost:7071`.
+
+Jobs and settings created in the UI are persisted in the volume and survive container restarts.
+
+### Docker Compose
+
+```bash
+cp config.example.yml data/config.yml   # edit as needed
 docker compose up -d
 ```
 
-The UI is available at `http://localhost:5050`.
-
-### Local
+### Local (Python)
 
 ```bash
 pip install -r requirements.txt
@@ -53,6 +78,23 @@ cp config.example.yml config.yml
 # Edit config.yml with your sources and Dremio target
 python main.py
 ```
+
+## Web UI
+
+The built-in React UI (served by Flask on port 7071) provides:
+
+| Page | Description |
+|---|---|
+| **Jobs / Sources** | Create, edit, enable/disable, and manually trigger jobs |
+| **Pipeline** | Visual overview of all pipelines — source → job → target |
+| **Pipeline Detail** | Per-job drill-down: source tables, run history dots, success rate, target preview |
+| **Runs** | Full run history across all jobs with row counts and error messages |
+| **Scheduler** | View and manage upcoming scheduled job runs |
+| **Health** | Connector health checks and system status |
+| **Explorer** | Browse Dremio namespaces and preview tables |
+| **Copy Into** | Run Dremio-native COPY INTO operations |
+| **Target** | Configure the Dremio or Iceberg write target |
+| **Settings** | Secrets, notifications (Slack / email / webhook), AI Agent |
 
 ## Configuration
 
@@ -71,7 +113,7 @@ jobs:
     load_mode: incremental     # full | incremental
     schedule: "0 * * * *"     # cron expression
     connection:
-      host: postgres
+      host: postgres-host
       port: 5432
       user: loader
       password: ${PG_PASSWORD}
@@ -83,9 +125,9 @@ jobs:
     target_table: my_space.orders
 ```
 
-See [`config.example.yml`](config.example.yml) for full examples including Google Ads, LinkedIn Ads, S3, MySQL, and more.
+See [`config.example.yml`](config.example.yml) for full examples covering Google Ads, LinkedIn Ads, S3, MySQL, and more.
 
-## Source Configuration
+## Source Configuration Examples
 
 ### S3 / MinIO
 ```yaml
@@ -130,6 +172,8 @@ tables:
   - ad_group_performance
   - search_terms
 ```
+
+> **Tip:** When creating a Google Ads job in the UI, use the **Connect with Google** button — it opens an OAuth popup and automatically fills in the refresh token.
 
 ### LinkedIn Ads
 ```yaml
@@ -179,7 +223,7 @@ options:
   snapshot_cursor_column: updated_at
 ```
 
-The engine stores the last cursor value in SQLite and only fetches rows where `cursor_col > last_value` on subsequent runs.
+The engine stores the last cursor value in SQLite and only fetches rows where `cursor_col > last_value` on subsequent runs. Use **Runs → Reset Offset** in the UI to force a full reload.
 
 ## PII Masking
 
@@ -198,29 +242,16 @@ Supports environment variables (`${VAR}`) and HashiCorp Vault (`vault:secret/pat
 
 ## Scheduling
 
-Jobs run on cron schedules defined per job. The UI at `http://localhost:5050` shows job history, run status, row counts, and allows manual triggers.
-
-## Web UI
-
-The built-in Flask UI provides:
-- Job list with status and last run time
-- Manual trigger button per job
-- Run history with row counts and error messages
-- Offset reset (force full reload)
-- Notification settings (Slack, email, webhook)
+Jobs run on cron schedules defined per job. The UI at `http://localhost:7071` shows job history, run status, row counts, and allows manual triggers.
 
 ## Requirements
 
-- Python 3.10+
+- Python 3.11+ (if running locally)
 - Dremio 24+ (for SQL sink mode)
-- Docker (optional, for containerized deployment)
+- Docker (recommended)
 
-Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+Source-specific packages are included in the Docker image. For local installs:
 
-Source-specific packages (installed as needed):
 | Source | Package |
 |---|---|
 | Google Ads | `google-ads>=24.0.0` |
@@ -231,6 +262,7 @@ Source-specific packages (installed as needed):
 | ClickHouse | `clickhouse-connect` |
 | Delta Lake | `deltalake` |
 | Cosmos DB | `azure-cosmos` |
+| Google Spanner | `google-cloud-spanner` |
 
 ## Running Tests
 
@@ -240,4 +272,4 @@ pytest tests/ -v
 
 ## License
 
-MIT
+Apache 2.0
