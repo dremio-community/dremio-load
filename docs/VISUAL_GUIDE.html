@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dremio Load — Visual User Guide</title>
+<style>
+  :root {
+    --navy: #0a0f1e;
+    --navy-mid: #0f172a;
+    --navy-surface: #1e293b;
+    --green: #34d399;
+    --green-dark: #064e3b;
+    --blue: #3b82f6;
+    --blue-dark: #1e3a5f;
+    --teal: #38bdf8;
+    --indigo: #818cf8;
+    --amber: #fbbf24;
+    --red: #f87171;
+    --text: #e2e8f0;
+    --text-muted: #94a3b8;
+    --border: rgba(255,255,255,0.07);
+    --surface: rgba(255,255,255,0.04);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--navy);
+    color: var(--text);
+    line-height: 1.65;
+    font-size: 15px;
+  }
+  .app { display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  .sidebar {
+    width: 250px; flex-shrink: 0;
+    background: var(--navy-mid);
+    border-right: 1px solid var(--border);
+    position: fixed; top: 0; left: 0; bottom: 0;
+    overflow-y: auto; padding: 24px 0; z-index: 100;
+  }
+  .sidebar-logo { padding: 0 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 12px; }
+  .sidebar-logo h2 { font-size: 14px; font-weight: 800; color: var(--green); letter-spacing: .06em; text-transform: uppercase; }
+  .sidebar-logo p { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  .toc-section { font-size: 10px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-muted); padding: 14px 20px 4px; }
+  .toc-item { display: block; padding: 6px 20px; font-size: 12.5px; color: var(--text-muted); text-decoration: none; transition: all .15s; border-left: 2px solid transparent; }
+  .toc-item:hover { color: var(--text); background: var(--surface); border-left-color: var(--green); }
+  .toc-num { display: inline-block; width: 22px; font-size: 10px; color: var(--green); font-weight: 700; }
+
+  /* Main content */
+  .main { margin-left: 250px; max-width: 980px; padding: 40px 52px 100px; }
+
+  /* Hero */
+  .hero {
+    background: linear-gradient(135deg, #0f172a 0%, #0a1628 60%, #071220 100%);
+    border: 1px solid var(--border);
+    border-radius: 14px; padding: 44px 52px; margin-bottom: 56px; text-align: center;
+  }
+  .hero-badge { display: inline-block; background: var(--green); color: #0a0f1e; font-size: 11px; font-weight: 800; padding: 3px 12px; border-radius: 20px; letter-spacing: .06em; margin-bottom: 18px; text-transform: uppercase; }
+  .hero h1 { font-size: 34px; font-weight: 800; color: #fff; margin-bottom: 10px; letter-spacing: -.5px; }
+  .hero p { font-size: 16px; color: var(--text-muted); max-width: 560px; margin: 0 auto 24px; }
+  .hero-pills { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  .pill { display: inline-flex; align-items: center; gap: 5px; border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600; }
+  .pill-green { background: rgba(52,211,153,.12); color: var(--green); border: 1px solid rgba(52,211,153,.25); }
+  .pill-blue  { background: rgba(59,130,246,.12); color: #7eb8f7; border: 1px solid rgba(59,130,246,.25); }
+  .pill-teal  { background: rgba(56,189,248,.12); color: var(--teal); border: 1px solid rgba(56,189,248,.25); }
+  .pill-indigo{ background: rgba(129,140,248,.12); color: var(--indigo); border: 1px solid rgba(129,140,248,.25); }
+  .pill-amber { background: rgba(251,191,36,.12); color: var(--amber); border: 1px solid rgba(251,191,36,.25); }
+
+  /* Sections */
+  .section { margin-bottom: 72px; }
+  .section-header { display: flex; align-items: flex-start; gap: 16px; margin-bottom: 28px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .step-num { width: 40px; height: 40px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: #0a0f1e; flex-shrink: 0; margin-top: 2px; }
+  .step-num.blue { background: var(--blue); color: #fff; }
+  .step-num.indigo { background: var(--indigo); color: #0a0f1e; }
+  .step-num.teal { background: var(--teal); color: #0a0f1e; }
+  .step-num.amber { background: var(--amber); color: #0a0f1e; }
+  .step-num.gray { background: rgba(255,255,255,.15); color: #fff; }
+  .section-header-text h2 { font-size: 22px; font-weight: 700; color: #fff; }
+  .section-header-text p { font-size: 14px; color: var(--text-muted); margin-top: 3px; }
+
+  /* Screenshot */
+  .shot-wrap { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 20px; }
+  .shot-wrap img { width: 100%; display: block; }
+  .shot-caption { padding: 10px 16px; background: rgba(0,0,0,.3); font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+  .shot-caption strong { color: var(--text); }
+
+  /* Two / three column */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+
+  /* Callouts */
+  .callout { border-radius: 8px; padding: 14px 18px; margin-bottom: 20px; display: flex; gap: 12px; align-items: flex-start; }
+  .callout-tip  { background: rgba(52,211,153,.08); border: 1px solid rgba(52,211,153,.2); }
+  .callout-info { background: rgba(59,130,246,.08); border: 1px solid rgba(59,130,246,.2); }
+  .callout-warn { background: rgba(251,191,36,.08); border: 1px solid rgba(251,191,36,.2); }
+  .callout-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .callout-body { font-size: 13.5px; color: var(--text); }
+  .callout-body strong { color: #fff; }
+  .callout-body code { background: rgba(255,255,255,.1); border-radius: 3px; padding: 1px 6px; font-family: 'SF Mono', monospace; font-size: 12px; }
+
+  /* Steps list */
+  .steps { list-style: none; counter-reset: s; }
+  .steps li { counter-increment: s; display: flex; gap: 14px; margin-bottom: 12px; align-items: flex-start; }
+  .steps li::before { content: counter(s); width: 24px; height: 24px; border-radius: 50%; background: var(--green); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; color: #0a0f1e; flex-shrink: 0; margin-top: 2px; }
+  .steps li p { font-size: 14px; color: var(--text); padding-top: 2px; }
+  .steps li p strong { color: #fff; }
+  .steps li p code { background: rgba(255,255,255,.1); border-radius: 3px; padding: 1px 6px; font-family: 'SF Mono', monospace; font-size: 12px; }
+
+  /* Feature grid */
+  .feature-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; margin-bottom: 24px; }
+  .feature-card { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+  .feature-card .icon { font-size: 22px; margin-bottom: 6px; }
+  .feature-card h4 { font-size: 13px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .feature-card p { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+  /* Source badge grid */
+  .source-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px; }
+  .source-badge { background: var(--navy-surface); border: 1px solid var(--border); border-radius: 6px; padding: 5px 12px; font-size: 12px; color: var(--text-muted); font-weight: 500; }
+
+  /* Table */
+  .data-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; font-size: 13px; }
+  .data-table th { text-align: left; padding: 8px 14px; background: rgba(255,255,255,.05); color: var(--text-muted); font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; border-bottom: 1px solid var(--border); }
+  .data-table td { padding: 9px 14px; border-bottom: 1px solid var(--border); vertical-align: top; }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table td code { background: rgba(255,255,255,.08); border-radius: 3px; padding: 1px 6px; font-family: 'SF Mono', monospace; font-size: 11.5px; }
+
+  /* Typography */
+  p { margin-bottom: 14px; }
+  h3 { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 10px; margin-top: 22px; }
+  ul { margin-left: 20px; margin-bottom: 14px; }
+  ul li { margin-bottom: 5px; font-size: 14px; color: var(--text); }
+  code { background: rgba(255,255,255,.1); border-radius: 3px; padding: 1px 6px; font-family: 'SF Mono', monospace; font-size: 12px; }
+  strong { color: #fff; }
+
+  @media (max-width: 860px) {
+    .sidebar { display: none; }
+    .main { margin-left: 0; padding: 24px 20px 60px; }
+    .two-col, .three-col { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ── Sidebar ─────────────────────────────────────────────────────────── -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <h2>Dremio Load</h2>
+    <p>Visual User Guide &nbsp;·&nbsp; v1.2</p>
+  </div>
+  <span class="toc-section">Getting Started</span>
+  <a class="toc-item" href="#overview"><span class="toc-num">01</span> What is Dremio Load?</a>
+  <a class="toc-item" href="#install"><span class="toc-num">02</span> Installation</a>
+  <a class="toc-item" href="#navigation"><span class="toc-num">03</span> Navigation</a>
+  <span class="toc-section">Core Workflow</span>
+  <a class="toc-item" href="#target"><span class="toc-num">04</span> Configure Target</a>
+  <a class="toc-item" href="#create-job"><span class="toc-num">05</span> Create a Job</a>
+  <a class="toc-item" href="#sources"><span class="toc-num">06</span> Source Types</a>
+  <a class="toc-item" href="#google-ads"><span class="toc-num">07</span> Google Ads OAuth</a>
+  <a class="toc-item" href="#running"><span class="toc-num">08</span> Running Jobs</a>
+  <span class="toc-section">Monitoring</span>
+  <a class="toc-item" href="#runs"><span class="toc-num">09</span> Run History</a>
+  <a class="toc-item" href="#scheduler"><span class="toc-num">10</span> Scheduler</a>
+  <a class="toc-item" href="#pipeline"><span class="toc-num">11</span> Pipeline View</a>
+  <a class="toc-item" href="#health"><span class="toc-num">12</span> Health Dashboard</a>
+  <span class="toc-section">Tools</span>
+  <a class="toc-item" href="#explorer"><span class="toc-num">13</span> Explorer</a>
+  <a class="toc-item" href="#copy-into"><span class="toc-num">14</span> Copy Into</a>
+  <a class="toc-item" href="#settings"><span class="toc-num">15</span> Settings</a>
+</nav>
+
+<!-- ── Main ───────────────────────────────────────────────────────────── -->
+<main class="main">
+
+<!-- Hero -->
+<div class="hero">
+  <div class="hero-badge">Visual User Guide</div>
+  <h1>Dremio Load</h1>
+  <p>Load data from 25+ sources into Dremio Iceberg tables — with a built-in UI for managing jobs, monitoring pipelines, and scheduling runs.</p>
+  <div class="hero-pills">
+    <span class="pill pill-green">25+ Sources</span>
+    <span class="pill pill-teal">Incremental &amp; Full Load</span>
+    <span class="pill pill-blue">Pipeline Monitoring</span>
+    <span class="pill pill-indigo">Google Ads OAuth</span>
+    <span class="pill pill-amber">Cron Scheduling</span>
+  </div>
+</div>
+
+<!-- ── 01 Overview ──────────────────────────────────────────────────────── -->
+<div class="section" id="overview">
+  <div class="section-header">
+    <div class="step-num">1</div>
+    <div class="section-header-text">
+      <h2>What is Dremio Load?</h2>
+      <p>A self-contained batch data ingestion tool with a full web UI</p>
+    </div>
+  </div>
+
+  <p>Dremio Load reads data from databases, cloud storage, SaaS tools, and ad platforms — then writes it into Dremio as Apache Iceberg tables. Everything runs in a single Docker container with a browser-based interface at <code>http://localhost:7071</code>.</p>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="icon">🔌</div>
+      <h4>25+ Connectors</h4>
+      <p>Postgres, MySQL, S3, Snowflake, Google Ads, Salesforce, MongoDB, and more.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">⚡</div>
+      <h4>Incremental Load</h4>
+      <p>Cursor-based incremental pulls. Only new or changed rows on each run.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🎯</div>
+      <h4>Two Write Modes</h4>
+      <p>Mode A: Dremio SQL MERGE. Mode B: PyIceberg direct write for high throughput.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">📊</div>
+      <h4>Pipeline Visibility</h4>
+      <p>Visual source → job → target flow with run history, success rates, and row counts.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🔐</div>
+      <h4>Secure by Default</h4>
+      <p>Env vars, HashiCorp Vault, and masked credentials throughout the UI.</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🤖</div>
+      <h4>AI Agent</h4>
+      <p>Optional Claude-powered agent for managing pipelines with natural language.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 02 Installation ──────────────────────────────────────────────────── -->
+<div class="section" id="install">
+  <div class="section-header">
+    <div class="step-num">2</div>
+    <div class="section-header-text">
+      <h2>Installation</h2>
+      <p>One Docker command — no Python or Node.js required on your machine</p>
+    </div>
+  </div>
+
+  <div class="callout callout-info">
+    <div class="callout-icon">🐳</div>
+    <div class="callout-body">
+      <strong>Docker Hub:</strong> <code>mshainman/dremio-load:latest</code> —
+      available at <strong>hub.docker.com/r/mshainman/dremio-load</strong>
+    </div>
+  </div>
+
+  <ol class="steps">
+    <li><p>Pull the image:<br><code>docker pull mshainman/dremio-load:latest</code></p></li>
+    <li><p>Create a persistent volume for jobs and config:<br><code>docker volume create dremio-load-data</code></p></li>
+    <li><p>Seed the required config file:<br><code>docker run --rm -v dremio-load-data:/data busybox sh -c "echo 'jobs: []\ntarget: {}' > /data/config.yml"</code></p></li>
+    <li><p>Start the container:<br><code>docker run -d --name dremio-load -p 7071:7071 -v dremio-load-data:/data mshainman/dremio-load:latest</code></p></li>
+    <li><p>Open <strong>http://localhost:7071</strong> in your browser.</p></li>
+  </ol>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body">
+      <strong>Jobs persist across restarts.</strong> All jobs, run history, and offsets are stored in the <code>dremio-load-data</code> volume. Upgrade by pulling the new image and recreating the container — your data stays intact.
+    </div>
+  </div>
+</div>
+
+<!-- ── 03 Navigation ────────────────────────────────────────────────────── -->
+<div class="section" id="navigation">
+  <div class="section-header">
+    <div class="step-num">3</div>
+    <div class="section-header-text">
+      <h2>Navigation</h2>
+      <p>The sidebar gives you access to every part of the tool</p>
+    </div>
+  </div>
+
+  <div class="two-col">
+    <div class="shot-wrap">
+      <img src="screenshots/12-sidebar-nav.png" alt="Sidebar navigation">
+      <div class="shot-caption">The sidebar is always visible. The active page is highlighted in green.</div>
+    </div>
+    <div>
+      <table class="data-table">
+        <thead><tr><th>Page</th><th>What it does</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Jobs / Sources</strong></td><td>Create, edit, run, enable/disable jobs</td></tr>
+          <tr><td><strong>Runs</strong></td><td>Full run history — rows, duration, errors</td></tr>
+          <tr><td><strong>Scheduler</strong></td><td>Upcoming cron runs and manual triggers</td></tr>
+          <tr><td><strong>Pipeline</strong></td><td>Visual source → job → target overview</td></tr>
+          <tr><td><strong>Health</strong></td><td>Success rates and connector status</td></tr>
+          <tr><td><strong>Explorer</strong></td><td>Browse Dremio tables and source data</td></tr>
+          <tr><td><strong>Copy Into</strong></td><td>Dremio-native file ingestion</td></tr>
+          <tr><td><strong>Target</strong></td><td>Configure Dremio write target</td></tr>
+          <tr><td><strong>Settings</strong></td><td>Notifications, Vault, AI Agent</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ── 04 Configure Target ──────────────────────────────────────────────── -->
+<div class="section" id="target">
+  <div class="section-header">
+    <div class="step-num teal">4</div>
+    <div class="section-header-text">
+      <h2>Configure Target (Dremio)</h2>
+      <p>Set up where data will be written before creating any jobs</p>
+    </div>
+  </div>
+
+  <p>Click <strong>Target</strong> in the sidebar. There are two write modes — pick the one that matches your Dremio setup.</p>
+
+  <div class="two-col">
+    <div class="shot-wrap">
+      <img src="screenshots/24-target-mode-a.png" alt="Target - Mode A Dremio SQL">
+      <div class="shot-caption"><strong>Mode A — Dremio SQL (recommended).</strong> Uses Dremio's REST API with SQL MERGE/INSERT statements. Works with all Dremio deployments including Dremio Cloud.</div>
+    </div>
+    <div class="shot-wrap">
+      <img src="screenshots/25-target-mode-b.png" alt="Target - Mode B PyIceberg">
+      <div class="shot-caption"><strong>Mode B — PyIceberg Direct.</strong> Writes directly to an Iceberg REST catalog, bypassing Dremio SQL. Faster for large loads. Requires an Iceberg catalog URL and warehouse path.</div>
+    </div>
+  </div>
+
+  <ol class="steps">
+    <li><p>Enter your Dremio <strong>Host</strong> and <strong>Port</strong> (default: 9047).</p></li>
+    <li><p>Enter <strong>Username / Password</strong> — or a Personal Access Token (PAT) for Dremio Cloud.</p></li>
+    <li><p>Set the <strong>Catalog / Source</strong> and <strong>Schema</strong> where tables will be created.</p></li>
+    <li><p>Choose <strong>Mode A</strong> (Dremio SQL) or <strong>Mode B</strong> (PyIceberg Direct).</p></li>
+    <li><p>Click <strong>Test Connection</strong>, then <strong>Save</strong>.</p></li>
+  </ol>
+
+  <div class="callout callout-warn">
+    <div class="callout-icon">⚠️</div>
+    <div class="callout-body">
+      If Dremio is running in another Docker container, use the container name or Docker network IP — not <code>localhost</code> — as the host. Containers can't reach each other via <code>localhost</code>.
+    </div>
+  </div>
+</div>
+
+<!-- ── 05 Create a Job ──────────────────────────────────────────────────── -->
+<div class="section" id="create-job">
+  <div class="section-header">
+    <div class="step-num">5</div>
+    <div class="section-header-text">
+      <h2>Create a Load Job</h2>
+      <p>Define a source, its tables, and where to write the data</p>
+    </div>
+  </div>
+
+  <p>Click <strong>Jobs / Sources</strong> in the sidebar, then click <strong>+ New Job</strong> in the top right.</p>
+
+  <div class="shot-wrap">
+    <img src="screenshots/13-jobs-page.png" alt="Jobs page">
+    <div class="shot-caption"><strong>Jobs / Sources page.</strong> Each card shows the job name, status badge, load mode, source type, last run time, and row count. The action buttons on the right let you run ▶, pause ⏸, edit ✏, delete 🗑, and expand the table list ∨.</div>
+  </div>
+
+  <div class="two-col">
+    <div class="shot-wrap">
+      <img src="screenshots/14-new-job-modal-s3.png" alt="New job modal - S3">
+      <div class="shot-caption"><strong>New Load Job modal — Amazon S3 example.</strong> Fields change dynamically based on the selected source type. S3 shows bucket, prefix, region, and access credentials. File format auto-detects from the file extension.</div>
+    </div>
+    <div class="shot-wrap">
+      <img src="screenshots/16-job-modal-bottom.png" alt="Job modal bottom - hooks">
+      <div class="shot-caption"><strong>Bottom of the job modal.</strong> Post-run hooks let you call a webhook on success or failure. The Transform Studio integration triggers a linked pipeline automatically after a successful load.</div>
+    </div>
+  </div>
+
+  <h3>Key fields</h3>
+  <table class="data-table">
+    <thead><tr><th>Field</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Job Name</strong></td><td>Friendly name shown on the job card and in run history</td></tr>
+      <tr><td><strong>Source Type</strong></td><td>The connector to use — see the full list in the next section</td></tr>
+      <tr><td><strong>Load Mode</strong></td><td><code>Incremental</code>: only new/changed rows · <code>Full</code>: replace all data each run</td></tr>
+      <tr><td><strong>Schedule</strong></td><td>Cron expression (e.g. <code>0 6 * * *</code> for daily at 6am), or leave blank for manual-only</td></tr>
+      <tr><td><strong>Target Table</strong></td><td>The Dremio/Iceberg table to write to (e.g. <code>"Catalog"."schema"."table"</code>). Use Browse to pick from the catalog.</td></tr>
+      <tr><td><strong>Tables / Collections</strong></td><td>Comma-separated list of tables, views, or file prefixes to load</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── 06 Source Types ──────────────────────────────────────────────────── -->
+<div class="section" id="sources">
+  <div class="section-header">
+    <div class="step-num blue">6</div>
+    <div class="section-header-text">
+      <h2>Source Types</h2>
+      <p>25+ connectors across every major data category</p>
+    </div>
+  </div>
+
+  <div class="shot-wrap">
+    <img src="screenshots/15-source-type-dropdown.png" alt="Source type dropdown">
+    <div class="shot-caption"><strong>Source Type dropdown — all available connectors grouped by category.</strong> Select the source type and the connection form updates automatically with the required fields.</div>
+  </div>
+
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="icon">☁️</div>
+      <h4>Object Storage</h4>
+      <p>Amazon S3 · Azure Blob / ADLS · Google Cloud Storage · S3-Compatible (MinIO, NetApp…)</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">△</div>
+      <h4>Table Formats</h4>
+      <p>Delta Lake · Apache Hudi</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🐘</div>
+      <h4>Relational Databases</h4>
+      <p>PostgreSQL · MySQL · SQL Server · Oracle · Snowflake</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🍃</div>
+      <h4>NoSQL / Cloud DB</h4>
+      <p>MongoDB · Amazon DynamoDB · Azure Cosmos DB · Google Cloud Spanner</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">⚙️</div>
+      <h4>Columnar &amp; Streaming</h4>
+      <p>Apache Cassandra · ClickHouse · Apache Pinot · Splunk</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🤝</div>
+      <h4>SaaS &amp; CRM</h4>
+      <p>Salesforce · HubSpot · Zendesk</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">📢</div>
+      <h4>Ad Platforms</h4>
+      <p>Google Ads · LinkedIn Ads</p>
+    </div>
+    <div class="feature-card">
+      <div class="icon">🔷</div>
+      <h4>Dremio Native</h4>
+      <p>COPY INTO (Dremio SQL) — reads files already in a Dremio-registered source</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── 07 Google Ads OAuth ──────────────────────────────────────────────── -->
+<div class="section" id="google-ads">
+  <div class="section-header">
+    <div class="step-num indigo">7</div>
+    <div class="section-header-text">
+      <h2>Google Ads — OAuth Setup</h2>
+      <p>One-click OAuth flow — no manual token generation required</p>
+    </div>
+  </div>
+
+  <p>Google Ads requires OAuth 2.0 credentials. Dremio Load includes a built-in <strong>Connect with Google</strong> popup flow that handles the OAuth handshake and automatically fills in the refresh token — no command-line tools or copy-pasting needed.</p>
+
+  <div class="two-col">
+    <div class="shot-wrap">
+      <img src="screenshots/03-new-job-google-ads.png" alt="Google Ads job modal">
+      <div class="shot-caption"><strong>Google Ads job form.</strong> Fill in your Developer Token, OAuth Client ID, Client Secret, and Customer ID — then click <strong>Connect with Google</strong>. The link "How to get Google Ads API credentials →" opens the Google documentation.</div>
+    </div>
+    <div class="shot-wrap">
+      <img src="screenshots/04-google-ads-connected.png" alt="Google Ads connected">
+      <div class="shot-caption"><strong>After authorizing in the popup.</strong> The form shows a green <strong>"Connected to Google Ads"</strong> badge with your Google account email. The refresh token is stored automatically. Click Re-authorize to switch accounts.</div>
+    </div>
+  </div>
+
+  <h3>Step-by-step</h3>
+  <ol class="steps">
+    <li><p>In <strong>Google Cloud Console</strong>, create an OAuth 2.0 Client ID of type <strong>Desktop app</strong>. Copy the Client ID and Client Secret.</p></li>
+    <li><p>Get a <strong>Developer Token</strong> from Google Ads → Tools → API Center. Apply for Basic Access for production use (Test tokens only work against test accounts).</p></li>
+    <li><p>In Dremio Load, create a new job with source type <strong>Google Ads</strong>. Fill in the Developer Token, Client ID, Client Secret, and Customer ID (digits only, no dashes).</p></li>
+    <li><p>Click <strong>Connect with Google</strong>. A browser popup opens — sign in with your Google account and grant access.</p></li>
+    <li><p>The popup closes automatically and the form shows the green Connected badge. Click <strong>Create Job</strong>.</p></li>
+  </ol>
+
+  <div class="two-col">
+    <div class="shot-wrap">
+      <img src="screenshots/01-google-cloud-console.png" alt="Google Cloud Console">
+      <div class="shot-caption"><strong>Google Cloud Console.</strong> Create your project here and enable the Google Ads API. The Project ID and number are shown on the welcome screen.</div>
+    </div>
+    <div class="shot-wrap">
+      <img src="screenshots/02-google-oauth-credentials.png" alt="OAuth credentials">
+      <div class="shot-caption"><strong>OAuth 2.0 credentials page.</strong> Copy the Client ID and Client Secret from here into the Dremio Load job form. Choose <strong>Desktop app</strong> as the application type.</div>
+    </div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body">
+      <strong>Manager (MCC) accounts:</strong> Dremio Load automatically detects if your Customer ID is a manager account. It finds sub-accounts and routes metric queries accordingly. If no sub-accounts are linked yet, metric tables return 0 rows — this is expected behavior, not an error.
+    </div>
+  </div>
+
+  <h3>Available Google Ads tables</h3>
+  <div class="source-grid">
+    <span class="source-badge">campaigns</span>
+    <span class="source-badge">ad_groups</span>
+    <span class="source-badge">ad_group_ads</span>
+    <span class="source-badge">campaign_performance</span>
+    <span class="source-badge">ad_group_performance</span>
+    <span class="source-badge">search_terms</span>
+    <span class="source-badge">keywords</span>
+    <span class="source-badge">audience_performance</span>
+    <span class="source-badge">geographic_performance</span>
+  </div>
+</div>
+
+<!-- ── 08 Running Jobs ───────────────────────────────────────────────────── -->
+<div class="section" id="running">
+  <div class="section-header">
+    <div class="step-num">8</div>
+    <div class="section-header-text">
+      <h2>Running Jobs</h2>
+      <p>Trigger manually or let the scheduler handle it</p>
+    </div>
+  </div>
+
+  <div class="shot-wrap">
+    <img src="screenshots/10-job-card-success.png" alt="Job card success">
+    <div class="shot-caption"><strong>Job card after a successful run.</strong> Shows the green <span style="color:#34d399">✓ success</span> badge, load mode (incremental), source type, last run timestamp, and row count. Action buttons: ▶ Run · ⏸ Pause · ✏ Edit · 🗑 Delete · ∨ Expand tables.</div>
+  </div>
+
+  <h3>Action buttons explained</h3>
+  <table class="data-table">
+    <thead><tr><th>Button</th><th>Action</th></tr></thead>
+    <tbody>
+      <tr><td>▶ <strong>Play</strong> (green)</td><td>Trigger the job immediately, regardless of schedule</td></tr>
+      <tr><td>⏸ <strong>Pause</strong></td><td>Toggle enable/disable. Disabled jobs are skipped by the scheduler but can still be run manually</td></tr>
+      <tr><td>✏ <strong>Pencil</strong></td><td>Open the job form to edit any setting — name, connection, tables, schedule, target</td></tr>
+      <tr><td>🗑 <strong>Trash</strong></td><td>Delete the job (requires confirmation). Data already in Dremio is not affected</td></tr>
+      <tr><td>∨ <strong>Chevron</strong></td><td>Expand the card to see the full list of tables configured for this job</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-info">
+    <div class="callout-icon">ℹ️</div>
+    <div class="callout-body">
+      <strong>Incremental mode:</strong> After the first run, only rows where the cursor column (e.g. <code>updated_at</code>) is newer than the last run value are fetched. The cursor is stored in SQLite automatically. To force a full reload, use the reset icon in the Runs page.
+    </div>
+  </div>
+</div>
+
+<!-- ── 09 Run History ───────────────────────────────────────────────────── -->
+<div class="section" id="runs">
+  <div class="section-header">
+    <div class="step-num amber">9</div>
+    <div class="section-header-text">
+      <h2>Run History</h2>
+      <p>Every table load logged — status, rows, duration, and errors</p>
+    </div>
+  </div>
+
+  <div class="shot-wrap">
+    <img src="screenshots/17-run-history.png" alt="Run history page">
+    <div class="shot-caption"><strong>Run History page.</strong> Each row is one table load. Shows status icon, job name, table name, row count, duration, start time, and any error message. Use the <strong>All jobs</strong> dropdown to filter by a specific job. The refresh button (↻) reloads the list.</div>
+  </div>
+
+  <table class="data-table">
+    <thead><tr><th>Column</th><th>Description</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Status</strong></td><td>✓ success (green) · ✗ error (red) · ⏱ pending (amber)</td></tr>
+      <tr><td><strong>Job</strong></td><td>The job name that ran this table</td></tr>
+      <tr><td><strong>Table</strong></td><td>The specific source table loaded in this run</td></tr>
+      <tr><td><strong>Rows</strong></td><td>Number of rows written to Dremio in this run</td></tr>
+      <tr><td><strong>Duration</strong></td><td>Elapsed time for this table's load</td></tr>
+      <tr><td><strong>Started</strong></td><td>Timestamp the run began</td></tr>
+      <tr><td><strong>Error</strong></td><td>Full error message if the run failed — useful for diagnosing connection or query issues</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── 10 Scheduler ──────────────────────────────────────────────────────── -->
+<div class="section" id="scheduler">
+  <div class="section-header">
+    <div class="step-num blue">10</div>
+    <div class="section-header-text">
+      <h2>Scheduler</h2>
+      <p>See all jobs and trigger them on demand</p>
+    </div>
+  </div>
+
+  <div class="shot-wrap">
+    <img src="screenshots/18-scheduler.png" alt="Scheduler page">
+    <div class="shot-caption"><strong>Scheduler page.</strong> Jobs are grouped into <em>Scheduled Jobs</em> (with a cron expression) and <em>Manual Jobs</em>. Each row shows the job, source type, load mode, last run time, status, and a <strong>Run</strong> button for immediate execution.</div>
+  </div>
+
+  <h3>Cron schedule examples</h3>
+  <table class="data-table">
+    <thead><tr><th>Expression</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><code>0 * * * *</code></td><td>Every hour at :00</td></tr>
+      <tr><td><code>0 6 * * *</code></td><td>Daily at 6:00 AM</td></tr>
+      <tr><td><code>0 */4 * * *</code></td><td>Every 4 hours</td></tr>
+      <tr><td><code>30 5 * * 1</code></td><td>Every Monday at 5:30 AM</td></tr>
+      <tr><td><code>0 0 1 * *</code></td><td>First day of each month at midnight</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body">
+      Leave the schedule field blank when creating a job if you want to trigger it manually only. You can add a schedule later by editing the job.
+    </div>
+  </div>
+</div>
+
+<!-- ── 11 Pipeline View ──────────────────────────────────────────────────── -->
+<div class="section" id="pipeline">
+  <div class="section-header">
+    <div class="step-num indigo">11</div>
+    <div class="section-header-text">
+      <h2>Pipeline View</h2>
+      <p>End-to-end visualization: source → job → target</p>
+    </div>
+  </div>
+
+  <p>Click <strong>Pipeline</strong> in the sidebar for a visual overview of every configured pipeline. Each card shows the full flow for one job — click any card to drill into the detail view.</p>
+
+  <div class="shot-wrap">
+    <img src="screenshots/19-pipeline-overview.png" alt="Pipeline overview">
+    <div class="shot-caption"><strong>Pipeline Overview.</strong> Each pipeline card shows three connected blocks: <span style="color:#94a3b8">Source</span> (type + table count) → <span style="color:#818cf8">Job</span> (name, mode, schedule) → <span style="color:#38bdf8">Target · Dremio SQL</span> (host + tables). The status badge and success rate appear on the right. Click the source block to edit the job, the target block to configure the target, or anywhere on the card to open the pipeline detail page.</div>
+  </div>
+
+  <div class="shot-wrap">
+    <img src="screenshots/06-pipeline-overview-two-jobs.png" alt="Pipeline overview multiple jobs">
+    <div class="shot-caption"><strong>Multiple pipelines at a glance.</strong> Error state is shown in red with the error message inline below the card. Success shows 100% success rate and run count. You can see at a glance which pipelines are healthy and which need attention.</div>
+  </div>
+
+  <h3>Pipeline Detail Page</h3>
+  <p>Clicking a pipeline card opens the full detail view for that job, showing:</p>
+  <ul>
+    <li><strong>Source panel</strong> — connection summary, per-table row counts and last-run status icons</li>
+    <li><strong>Job panel</strong> — mode/schedule chips, success rate bar, run history dots (hover for details), last run summary</li>
+    <li><strong>Target panel</strong> — Dremio host, destination table, live <em>Preview Target Data</em> button</li>
+    <li><strong>Per-table run history</strong> — the last 30 individual table loads with rows, duration, and error messages</li>
+  </ul>
+</div>
+
+<!-- ── 12 Health Dashboard ──────────────────────────────────────────────── -->
+<div class="section" id="health">
+  <div class="section-header">
+    <div class="step-num">12</div>
+    <div class="section-header-text">
+      <h2>Health Dashboard</h2>
+      <p>At-a-glance status for all jobs</p>
+    </div>
+  </div>
+
+  <div class="shot-wrap">
+    <img src="screenshots/20-health.png" alt="Health dashboard">
+    <div class="shot-caption"><strong>Load Health page.</strong> Four stat cards at the top: <span style="color:#34d399">Healthy</span> · <span style="color:#fbbf24">Degraded</span> · <span style="color:#f87171">Failing</span> · <span style="color:#94a3b8">Never Run</span>. Below is a per-job table with success rate bar, total runs, rows written, average duration, and last run result.</div>
+  </div>
+
+  <table class="data-table">
+    <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+    <tbody>
+      <tr><td><span style="color:#34d399"><strong>Healthy</strong></span></td><td>Last run succeeded</td></tr>
+      <tr><td><span style="color:#fbbf24"><strong>Degraded</strong></span></td><td>Some recent runs failed — success rate below 100%</td></tr>
+      <tr><td><span style="color:#f87171"><strong>Failing</strong></span></td><td>Last run failed</td></tr>
+      <tr><td><span style="color:#94a3b8"><strong>Never Run</strong></span></td><td>Job exists but has never been triggered</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ── 13 Explorer ───────────────────────────────────────────────────────── -->
+<div class="section" id="explorer">
+  <div class="section-header">
+    <div class="step-num teal">13</div>
+    <div class="section-header-text">
+      <h2>Explorer</h2>
+      <p>Browse your Dremio catalog and source data without leaving the UI</p>
+    </div>
+  </div>
+
+  <div class="shot-wrap">
+    <img src="screenshots/22-explorer.png" alt="Explorer page">
+    <div class="shot-caption"><strong>Explorer page — two tabs.</strong> <em>Dremio Catalog</em> browses the Dremio namespace tree and previews target tables. <em>Source Data</em> (shown) lets you select a configured source job, browse its tables, and preview raw source records before or after a load.</div>
+  </div>
+
+  <div class="callout callout-tip">
+    <div class="callout-icon">💡</div>
+    <div class="callout-body">
+      Use <strong>Source Data</strong> to verify that data is being fetched correctly from the source, and <strong>Dremio Catalog</strong> to confirm that tables were written successfully — all without opening a separate SQL client.
+    </div>
+  </div>
+</div>
+
+<!-- ── 14 Copy Into ──────────────────────────────────────────────────────── -->
+<div class="section" id="copy-into">
+  <div class="section-header">
+    <div class="step-num blue">14</div>
+    <div class="section-header-text">
+      <h2>Copy Into</h2>
+      <p>Dremio-native file ingestion — let Dremio do the reading</p>
+    </div>
+  </div>
+
+  <div class="shot-wrap">
+    <img src="screenshots/23-copy-into.png" alt="Copy Into page">
+    <div class="shot-caption"><strong>Copy Into page.</strong> Specify a target Iceberg table, the source location in a Dremio-registered source (e.g. <code>@my_s3_source/folder/</code>), file format (Parquet, JSON, CSV), and optional filename pattern regex. Click <strong>Preview SQL</strong> to see the generated statement before running.</div>
+  </div>
+
+  <p>Use COPY INTO when your files are already registered in Dremio as a source (S3, GCS, ADLS). Dremio reads the files natively — no Python parsing involved. Dremio tracks which files have already been loaded, so re-running is safe.</p>
+</div>
+
+<!-- ── 15 Settings ───────────────────────────────────────────────────────── -->
+<div class="section" id="settings">
+  <div class="section-header">
+    <div class="step-num gray">15</div>
+    <div class="section-header-text">
+      <h2>Settings</h2>
+      <p>Notifications, secrets management, and AI Agent configuration</p>
+    </div>
+  </div>
+
+  <div class="shot-wrap">
+    <img src="screenshots/26-settings-notifications.png" alt="Settings - Notifications">
+    <div class="shot-caption"><strong>Settings → Notifications.</strong> Configure email alerts via SMTP and/or a Slack incoming webhook. Alerts are sent when a job fails. Click <strong>Send Test Alert</strong> to verify your configuration before saving.</div>
+  </div>
+
+  <div class="two-col">
+    <div class="shot-wrap">
+      <img src="screenshots/27-settings-vault.png" alt="Settings - Vault Secrets">
+      <div class="shot-caption"><strong>Settings → Vault Secrets.</strong> Connect to HashiCorp Vault (token or AppRole auth). Once configured, use <code>vault:path#field</code> syntax in any connection credential. Environment variables use <code>${VAR_NAME}</code> syntax and need no additional setup.</div>
+    </div>
+    <div class="shot-wrap">
+      <img src="screenshots/28-settings-ai-agent.png" alt="Settings - AI Agent">
+      <div class="shot-caption"><strong>Settings → AI Agent.</strong> Enable the Claude-powered AI Agent by entering your Anthropic API key and selecting the model. When enabled, an <em>AI Agent</em> tab appears in the sidebar, letting users manage pipelines using natural language chat.</div>
+    </div>
+  </div>
+
+  <div class="callout callout-info">
+    <div class="callout-icon">🔐</div>
+    <div class="callout-body">
+      <strong>Secrets tip:</strong> Never put passwords directly in config files. Use <code>${ENV_VAR}</code> for environment variables passed into the container, or <code>vault:secret/path#key</code> for Vault-managed secrets. Both are resolved at runtime and never stored in plain text.
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+
+<script>
+// Highlight active TOC item on scroll
+const sections = document.querySelectorAll('.section[id]');
+const tocItems = document.querySelectorAll('.toc-item');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      tocItems.forEach(t => t.classList.remove('active'));
+      const link = document.querySelector(`.toc-item[href="#${e.target.id}"]`);
+      if (link) link.classList.add('active');
+    }
+  });
+}, { rootMargin: '-30% 0px -60% 0px' });
+sections.forEach(s => observer.observe(s));
+</script>
+
+</body>
+</html>
