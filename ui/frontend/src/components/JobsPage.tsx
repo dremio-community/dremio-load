@@ -25,10 +25,10 @@ function StatusBadge({ job }: { job: Job }) {
 
 function badge(color: 'emerald' | 'red' | 'amber' | 'slate'): React.CSSProperties {
   const colors: Record<string, { bg: string; text: string }> = {
-    emerald: { bg: '#064e3b', text: '#34d399' },
-    red:     { bg: '#450a0a', text: '#f87171' },
-    amber:   { bg: '#451a03', text: '#fbbf24' },
-    slate:   { bg: '#1e293b', text: '#94a3b8' },
+    emerald: { bg: 'var(--status-success-bg)', text: 'var(--status-success)' },
+    red:     { bg: 'var(--status-error-bg)',   text: 'var(--status-error)'   },
+    amber:   { bg: 'var(--status-warning-bg)', text: 'var(--status-warning)' },
+    slate:   { bg: 'var(--muted)',             text: 'var(--secondary-foreground)' },
   }
   const c = colors[color]
   return {
@@ -87,7 +87,7 @@ export default function JobsPage() {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#f1f5f9' }}>Load Jobs</h1>
+        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--foreground)' }}>Load Jobs</h1>
         <div style={{ display: 'flex', gap: 8 }}>
           <button onClick={load} style={btnGhost}><RefreshCw size={15} /></button>
           <button onClick={() => { setEditJob(null); setShowModal(true) }} style={btnPrimary}>
@@ -99,14 +99,15 @@ export default function JobsPage() {
       {msg && (
         <div style={{
           marginBottom: 12, padding: '10px 14px', borderRadius: 8, fontSize: 13,
-          background: msg.ok ? '#064e3b' : '#450a0a', color: msg.ok ? '#34d399' : '#f87171',
+          background: msg.ok ? 'var(--status-success-bg)' : 'var(--status-error-bg)',
+          color: msg.ok ? 'var(--status-success)' : 'var(--status-error)',
         }}>{msg.text}</div>
       )}
 
       {loading ? (
-        <div style={{ color: '#64748b', textAlign: 'center', paddingTop: 60 }}>Loading…</div>
+        <div style={{ color: 'var(--muted-foreground)', textAlign: 'center', paddingTop: 60 }}>Loading…</div>
       ) : jobs.length === 0 ? (
-        <div style={{ color: '#64748b', textAlign: 'center', paddingTop: 60 }}>
+        <div style={{ color: 'var(--muted-foreground)', textAlign: 'center', paddingTop: 60 }}>
           No jobs yet. Click <strong>New Job</strong> to create one.
         </div>
       ) : (
@@ -116,15 +117,15 @@ export default function JobsPage() {
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <div style={{ flex: 1 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                    <span style={{ fontWeight: 600, color: '#f1f5f9' }}>{job.name}</span>
+                    <span style={{ fontWeight: 600, color: 'var(--foreground)' }}>{job.name}</span>
                     <StatusBadge job={job} />
                     {job.load_mode && (
                       <span style={badge('amber')}>{job.load_mode}</span>
                     )}
                   </div>
-                  <div style={{ fontSize: 12, color: '#64748b', display: 'flex', gap: 12 }}>
+                  <div style={{ fontSize: 12, color: 'var(--secondary-foreground)', display: 'flex', gap: 12 }}>
                     <span>Type: {job.source_type || '—'}</span>
-                    {job.schedule && <span>Schedule: <code style={{ color: '#94a3b8' }}>{job.schedule}</code></span>}
+                    {job.schedule && <span>Schedule: <code style={{ color: 'var(--accent)' }}>{job.schedule}</code></span>}
                     {job.last_run?.started_at && (
                       <span>Last: {new Date(job.last_run.started_at).toLocaleString()} · {job.last_run.rows ?? 0} rows</span>
                     )}
@@ -134,14 +135,14 @@ export default function JobsPage() {
                   <button
                     onClick={() => handleTrigger(job.id)}
                     disabled={triggering.has(job.id) || job.running}
-                    style={{ ...btnSmall, background: '#064e3b', color: '#34d399' }}
+                    style={{ ...btnSmall, background: 'var(--status-success-bg)', color: 'var(--status-success)' }}
                     title="Run now"
                   >
                     {triggering.has(job.id) ? <Loader2 size={13} style={{ animation: 'spin 1s linear infinite' }} /> : <Play size={13} />}
                   </button>
                   <button
                     onClick={() => handleToggle(job)}
-                    style={{ ...btnSmall, background: job.enabled ? '#1e293b' : '#451a03', color: job.enabled ? '#94a3b8' : '#fbbf24' }}
+                    style={{ ...btnSmall, background: job.enabled ? 'var(--muted)' : 'var(--status-warning-bg)', color: job.enabled ? 'var(--secondary-foreground)' : 'var(--status-warning)' }}
                     title={job.enabled ? 'Disable' : 'Enable'}
                   >
                     <Pause size={13} />
@@ -155,7 +156,7 @@ export default function JobsPage() {
                   </button>
                   <button
                     onClick={() => handleDelete(job)}
-                    style={{ ...btnSmall, color: '#f87171' }}
+                    style={{ ...btnSmall, color: 'var(--destructive)' }}
                     title="Delete"
                   >
                     <Trash2 size={13} />
@@ -169,13 +170,13 @@ export default function JobsPage() {
               </div>
 
               {expanded.has(job.id) && job.tables && (
-                <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid #1e293b' }}>
-                  <div style={{ fontSize: 11, color: '#64748b', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tables</div>
+                <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border)' }}>
+                  <div style={{ fontSize: 11, color: 'var(--muted-foreground)', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Tables</div>
                   <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                     {job.tables.map((t: string) => (
                       <span key={t} style={{
-                        padding: '2px 10px', background: '#1e293b', borderRadius: 12,
-                        fontSize: 12, color: '#cbd5e1', fontFamily: 'monospace',
+                        padding: '2px 10px', background: 'var(--muted)', borderRadius: 12,
+                        fontSize: 12, color: 'var(--secondary-foreground)', fontFamily: 'monospace',
                       }}>{t}</span>
                     ))}
                   </div>
@@ -200,21 +201,21 @@ export default function JobsPage() {
 }
 
 const card: React.CSSProperties = {
-  background: '#1e293b', borderRadius: 10, padding: '14px 16px',
-  border: '1px solid #334155',
+  background: 'var(--card)', borderRadius: 10, padding: '14px 16px',
+  border: '1px solid var(--border)',
 }
 const btnPrimary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '7px 14px', borderRadius: 7, border: 'none', cursor: 'pointer',
-  background: '#34d399', color: '#0f172a', fontWeight: 600, fontSize: 13,
+  padding: '7px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
+  background: 'var(--primary)', color: '#fff', fontWeight: 600, fontSize: 13,
 }
 const btnGhost: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '7px 10px', borderRadius: 7, border: '1px solid #334155', cursor: 'pointer',
-  background: 'transparent', color: '#94a3b8', fontSize: 13,
+  padding: '7px 10px', borderRadius: 6, border: '1px solid var(--border)', cursor: 'pointer',
+  background: 'transparent', color: 'var(--secondary-foreground)', fontSize: 13,
 }
 const btnSmall: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-  width: 28, height: 28, borderRadius: 6, border: '1px solid #334155', cursor: 'pointer',
-  background: '#0f172a', color: '#94a3b8', fontSize: 12,
+  width: 28, height: 28, borderRadius: 6, border: '1px solid var(--border)', cursor: 'pointer',
+  background: 'var(--card)', color: 'var(--secondary-foreground)', fontSize: 12,
 }

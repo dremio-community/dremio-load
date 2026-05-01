@@ -109,13 +109,13 @@ export default function SchedulerPage() {
   }
 
   const statusColor = (status: string | null) => {
-    if (status === 'success') return '#34d399'
-    if (status === 'error') return '#f87171'
-    return '#64748b'
+    if (status === 'success') return 'var(--status-success)'
+    if (status === 'error') return 'var(--status-error)'
+    return 'var(--muted-foreground)'
   }
 
   if (loading && jobs.length === 0) {
-    return <div style={s.center}><RefreshCw size={20} color="#64748b" /></div>
+    return <div style={s.center}><RefreshCw size={20} color="var(--muted-foreground)" /></div>
   }
 
   const scheduled = jobs.filter(j => j.schedule)
@@ -146,7 +146,7 @@ export default function SchedulerPage() {
                 <div key={j.id} style={s.timelineChip}>
                   <span>{SOURCE_ICONS[j.source_type] || '📦'}</span>
                   <span style={{ fontWeight: 600 }}>{j.name}</span>
-                  <span style={{ color: '#34d399' }}>{formatTime(j.next_run)}</span>
+                  <span style={{ color: 'var(--status-success)' }}>{formatTime(j.next_run)}</span>
                 </div>
               ))}
           </div>
@@ -186,8 +186,8 @@ export default function SchedulerPage() {
                         placeholder="cron expression"
                         autoFocus
                       />
-                      <button style={s.iconBtn} onClick={() => saveCron(job)}><Check size={13} color="#34d399" /></button>
-                      <button style={s.iconBtn} onClick={() => setEditingId(null)}><X size={13} color="#f87171" /></button>
+                      <button style={s.iconBtn} onClick={() => saveCron(job)}><Check size={13} color="var(--status-success)" /></button>
+                      <button style={s.iconBtn} onClick={() => setEditingId(null)}><X size={13} color="var(--status-error)" /></button>
                     </div>
                   ) : (
                     <div style={s.cronCell}>
@@ -197,18 +197,18 @@ export default function SchedulerPage() {
                   )}
                 </div>
 
-                <div style={{ color: '#94a3b8', fontSize: 13 }}>{formatTime(job.next_run)}</div>
-                <div style={{ color: '#64748b', fontSize: 13 }}>{formatTime(job.last_run_at)}</div>
+                <div style={{ color: 'var(--secondary-foreground)', fontSize: 13 }}>{formatTime(job.next_run)}</div>
+                <div style={{ color: 'var(--muted-foreground)', fontSize: 13 }}>{formatTime(job.last_run_at)}</div>
 
                 <div>
                   {job.running ? (
-                    <span style={{ ...s.badge, background: '#1d4ed8' }}>Running</span>
+                    <span style={{ ...s.badge, background: 'var(--status-info-bg)', color: 'var(--status-info)' }}>Running</span>
                   ) : job.last_status === 'success' ? (
-                    <span style={{ ...s.badge, background: '#064e3b', color: '#34d399' }}>OK</span>
+                    <span style={{ ...s.badge, background: 'var(--status-success-bg)', color: 'var(--status-success)' }}>OK</span>
                   ) : job.last_status === 'error' ? (
-                    <span style={{ ...s.badge, background: '#450a0a', color: '#f87171' }}>Error</span>
+                    <span style={{ ...s.badge, background: 'var(--status-error-bg)', color: 'var(--status-error)' }}>Error</span>
                   ) : (
-                    <span style={{ ...s.badge, background: '#1e293b', color: '#64748b' }}>Never</span>
+                    <span style={{ ...s.badge, background: 'var(--muted)', color: 'var(--secondary-foreground)' }}>Never</span>
                   )}
                 </div>
 
@@ -227,12 +227,12 @@ export default function SchedulerPage() {
                     onClick={() => { setEditingId(job.id); setEditCron(job.schedule || '') }}
                     title="Edit schedule"
                   >
-                    <Edit2 size={13} color="#94a3b8" />
+                    <Edit2 size={13} color="var(--secondary-foreground)" />
                   </button>
                   <button style={s.iconBtn} onClick={() => toggleEnabled(job)} title={job.enabled ? 'Disable' : 'Enable'}>
                     {job.enabled
-                      ? <ToggleRight size={18} color="#34d399" />
-                      : <ToggleLeft size={18} color="#64748b" />}
+                      ? <ToggleRight size={18} color="var(--status-success)" />
+                      : <ToggleLeft size={18} color="var(--muted-foreground)" />}
                   </button>
                 </div>
               </div>
@@ -261,16 +261,16 @@ export default function SchedulerPage() {
                     <div style={s.jobMeta}>{job.source_type} · {job.load_mode}</div>
                   </div>
                 </div>
-                <div style={{ color: '#64748b', fontSize: 13 }}>{formatTime(job.last_run_at)}</div>
+                <div style={{ color: 'var(--muted-foreground)', fontSize: 13 }}>{formatTime(job.last_run_at)}</div>
                 <div>
                   {job.running ? (
-                    <span style={{ ...s.badge, background: '#1d4ed8' }}>Running</span>
+                    <span style={{ ...s.badge, background: 'var(--status-info-bg)', color: 'var(--status-info)' }}>Running</span>
                   ) : job.last_status ? (
-                    <span style={{ ...s.badge, background: job.last_status === 'success' ? '#064e3b' : '#450a0a', color: statusColor(job.last_status) }}>
+                    <span style={{ ...s.badge, background: job.last_status === 'success' ? 'var(--status-success-bg)' : 'var(--status-error-bg)', color: statusColor(job.last_status) }}>
                       {job.last_status}
                     </span>
                   ) : (
-                    <span style={{ ...s.badge, background: '#1e293b', color: '#64748b' }}>Never</span>
+                    <span style={{ ...s.badge, background: 'var(--muted)', color: 'var(--secondary-foreground)' }}>Never</span>
                   )}
                 </div>
                 <div style={s.actions}>
@@ -299,31 +299,31 @@ export default function SchedulerPage() {
 const s: Record<string, React.CSSProperties> = {
   page: { padding: 28, maxWidth: 1100 },
   header: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 },
-  title: { margin: 0, fontSize: 20, fontWeight: 700, color: '#f1f5f9' },
-  sub: { margin: '4px 0 0', fontSize: 13, color: '#64748b' },
-  refreshBtn: { display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: '#1e293b', border: '1px solid #334155', borderRadius: 6, color: '#94a3b8', cursor: 'pointer', fontSize: 13 },
+  title: { margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--foreground)' },
+  sub: { margin: '4px 0 0', fontSize: 13, color: 'var(--secondary-foreground)' },
+  refreshBtn: { display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 6, color: 'var(--secondary-foreground)', cursor: 'pointer', fontSize: 13 },
   center: { display: 'flex', justifyContent: 'center', alignItems: 'center', height: 200 },
-  timeline: { background: '#0d1f35', border: '1px solid #1e3a5f', borderRadius: 10, padding: '14px 18px', marginBottom: 24 },
-  timelineLabel: { display: 'flex', alignItems: 'center', fontSize: 12, color: '#64748b', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' },
+  timeline: { background: 'var(--selected)', border: '1px solid var(--border)', borderRadius: 10, padding: '14px 18px', marginBottom: 24 },
+  timelineLabel: { display: 'flex', alignItems: 'center', fontSize: 12, color: 'var(--secondary-foreground)', marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.05em' },
   timelineItems: { display: 'flex', flexWrap: 'wrap', gap: 10 },
-  timelineChip: { display: 'flex', alignItems: 'center', gap: 7, background: '#1e293b', border: '1px solid #334155', borderRadius: 20, padding: '5px 12px', fontSize: 12 },
+  timelineChip: { display: 'flex', alignItems: 'center', gap: 7, background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 20, padding: '5px 12px', fontSize: 12 },
   section: { marginBottom: 32 },
-  sectionTitle: { fontSize: 13, fontWeight: 600, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 },
-  table: { background: '#0f172a', border: '1px solid #1e293b', borderRadius: 10, overflow: 'hidden' },
-  tableHead: { display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr 1.5fr', padding: '10px 16px', background: '#1e293b', fontSize: 12, color: '#64748b', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', gap: 16 },
-  tableRow: { display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr 1.5fr', padding: '14px 16px', borderTop: '1px solid #1e293b', alignItems: 'center', gap: 16 },
+  sectionTitle: { fontSize: 13, fontWeight: 600, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12 },
+  table: { background: 'var(--card)', border: '1px solid var(--border)', borderRadius: 10, overflow: 'hidden' },
+  tableHead: { display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr 1.5fr', padding: '10px 16px', background: 'var(--muted)', fontSize: 12, color: 'var(--muted-foreground)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em', gap: 16 },
+  tableRow: { display: 'grid', gridTemplateColumns: '2fr 2fr 1fr 1fr 1fr 1.5fr', padding: '14px 16px', borderTop: '1px solid var(--border)', alignItems: 'center', gap: 16 },
   jobCell: { display: 'flex', alignItems: 'center', gap: 10 },
   icon: { fontSize: 20, lineHeight: 1 },
-  jobName: { fontWeight: 600, fontSize: 14, color: '#e2e8f0' },
-  jobMeta: { fontSize: 12, color: '#64748b', marginTop: 2 },
+  jobName: { fontWeight: 600, fontSize: 14, color: 'var(--foreground)' },
+  jobMeta: { fontSize: 12, color: 'var(--muted-foreground)', marginTop: 2 },
   cronCell: {},
-  cronHuman: { fontSize: 13, color: '#e2e8f0', fontWeight: 500 },
-  cronRaw: { fontSize: 11, color: '#475569', marginTop: 2, fontFamily: 'monospace' },
+  cronHuman: { fontSize: 13, color: 'var(--foreground)', fontWeight: 500 },
+  cronRaw: { fontSize: 11, color: 'var(--secondary-foreground)', marginTop: 2, fontFamily: 'monospace' },
   editRow: { display: 'flex', alignItems: 'center', gap: 6 },
-  cronInput: { flex: 1, background: '#1e293b', border: '1px solid #3b82f6', borderRadius: 5, padding: '4px 8px', color: '#e2e8f0', fontSize: 12, fontFamily: 'monospace', outline: 'none' },
+  cronInput: { flex: 1, background: '#fff', border: '1px solid var(--primary)', borderRadius: 5, padding: '4px 8px', color: 'var(--foreground)', fontSize: 12, fontFamily: 'monospace', outline: 'none' },
   badge: { padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, textTransform: 'uppercase' },
   actions: { display: 'flex', alignItems: 'center', gap: 8 },
-  runBtn: { display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', background: '#064e3b', border: '1px solid #065f46', borderRadius: 6, color: '#34d399', cursor: 'pointer', fontSize: 12, fontWeight: 600 },
+  runBtn: { display: 'flex', alignItems: 'center', gap: 5, padding: '5px 12px', background: 'var(--status-success-bg)', border: '1px solid var(--status-success)', borderRadius: 6, color: 'var(--status-success)', cursor: 'pointer', fontSize: 12, fontWeight: 600 },
   iconBtn: { background: 'none', border: 'none', cursor: 'pointer', padding: 4, display: 'flex', alignItems: 'center' },
-  empty: { color: '#64748b', fontSize: 14, padding: 40, textAlign: 'center' },
+  empty: { color: 'var(--muted-foreground)', fontSize: 14, padding: 40, textAlign: 'center' },
 }

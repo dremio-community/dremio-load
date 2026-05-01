@@ -3,9 +3,9 @@ import { RefreshCw, CheckCircle, XCircle, Clock } from 'lucide-react'
 import { getRuns, getJobs, type Run, type Job } from '../api/client'
 
 function StatusIcon({ status }: { status: string }) {
-  if (status === 'ok') return <CheckCircle size={14} color="#34d399" />
-  if (status === 'error') return <XCircle size={14} color="#f87171" />
-  return <Clock size={14} color="#fbbf24" />
+  if (status === 'ok') return <CheckCircle size={14} color="var(--status-success)" />
+  if (status === 'error') return <XCircle size={14} color="var(--status-error)" />
+  return <Clock size={14} color="var(--status-warning)" />
 }
 
 function duration(s: number | null | undefined) {
@@ -32,7 +32,7 @@ export default function RunsPage() {
   return (
     <div style={{ padding: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#f1f5f9' }}>Run History</h1>
+        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--foreground)' }}>Run History</h1>
         <div style={{ display: 'flex', gap: 8 }}>
           <select
             value={filterJob}
@@ -47,14 +47,14 @@ export default function RunsPage() {
       </div>
 
       {loading ? (
-        <div style={{ color: '#64748b', textAlign: 'center', paddingTop: 60 }}>Loading…</div>
+        <div style={{ color: 'var(--muted-foreground)', textAlign: 'center', paddingTop: 60 }}>Loading…</div>
       ) : runs.length === 0 ? (
-        <div style={{ color: '#64748b', textAlign: 'center', paddingTop: 60 }}>No runs yet.</div>
+        <div style={{ color: 'var(--muted-foreground)', textAlign: 'center', paddingTop: 60 }}>No runs yet.</div>
       ) : (
-        <div style={{ background: '#1e293b', borderRadius: 10, border: '1px solid #334155', overflow: 'hidden' }}>
+        <div style={{ background: 'var(--card)', borderRadius: 10, border: '1px solid var(--border)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse' }}>
             <thead>
-              <tr style={{ borderBottom: '1px solid #334155', background: '#0f172a' }}>
+              <tr style={{ borderBottom: '1px solid var(--border)', background: 'var(--muted)' }}>
                 {['Status', 'Job', 'Table', 'Rows', 'Duration', 'Started', 'Error'].map(h => (
                   <th key={h} style={th}>{h}</th>
                 ))}
@@ -62,18 +62,18 @@ export default function RunsPage() {
             </thead>
             <tbody>
               {runs.map((r, i) => (
-                <tr key={r.id} style={{ borderBottom: i < runs.length - 1 ? '1px solid #1e293b' : 'none' }}>
+                <tr key={r.id} style={{ borderBottom: i < runs.length - 1 ? '1px solid var(--border)' : 'none' }}>
                   <td style={td}><StatusIcon status={r.status} /></td>
-                  <td style={{ ...td, color: '#e2e8f0', fontWeight: 500 }}>
+                  <td style={{ ...td, color: 'var(--foreground)', fontWeight: 500 }}>
                     {jobs.find(j => j.id === r.job_id)?.name ?? r.job_id}
                   </td>
-                  <td style={{ ...td, fontFamily: 'monospace', fontSize: 12 }}>{r.table_name || '—'}</td>
+                  <td style={{ ...td, fontFamily: 'monospace', fontSize: 12, color: 'var(--accent)' }}>{r.table_name || '—'}</td>
                   <td style={td}>{r.rows?.toLocaleString() ?? 0}</td>
                   <td style={td}>{duration(r.duration_s)}</td>
                   <td style={td}>
                     {r.started_at ? new Date(r.started_at).toLocaleString() : '—'}
                   </td>
-                  <td style={{ ...td, color: '#f87171', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  <td style={{ ...td, color: 'var(--status-error)', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                     {r.error || '—'}
                   </td>
                 </tr>
@@ -88,17 +88,17 @@ export default function RunsPage() {
 
 const th: React.CSSProperties = {
   padding: '10px 14px', textAlign: 'left', fontSize: 11, fontWeight: 600,
-  color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em',
+  color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em',
 }
 const td: React.CSSProperties = {
-  padding: '11px 14px', fontSize: 13, color: '#94a3b8',
+  padding: '11px 14px', fontSize: 13, color: 'var(--secondary-foreground)',
 }
 const sel: React.CSSProperties = {
-  background: '#1e293b', border: '1px solid #334155', borderRadius: 7,
-  padding: '6px 10px', color: '#e2e8f0', fontSize: 13, outline: 'none',
+  background: '#fff', border: '1px solid var(--border)', borderRadius: 6,
+  padding: '6px 10px', color: 'var(--foreground)', fontSize: 13, outline: 'none',
 }
 const btnGhost: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center',
-  padding: '7px 10px', borderRadius: 7, border: '1px solid #334155', cursor: 'pointer',
-  background: 'transparent', color: '#94a3b8', fontSize: 13,
+  padding: '7px 10px', borderRadius: 6, border: '1px solid var(--border)', cursor: 'pointer',
+  background: 'transparent', color: 'var(--secondary-foreground)', fontSize: 13,
 }

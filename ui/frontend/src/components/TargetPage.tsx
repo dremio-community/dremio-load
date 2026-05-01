@@ -35,14 +35,14 @@ export default function TargetPage() {
 
   return (
     <div style={{ padding: 24, maxWidth: 680 }}>
-      <h1 style={{ margin: '0 0 20px', fontSize: 20, fontWeight: 700, color: '#f1f5f9' }}>Target (Dremio)</h1>
+      <h1 style={{ margin: '0 0 20px', fontSize: 20, fontWeight: 700, color: 'var(--foreground)' }}>Target (Dremio)</h1>
 
       {result && (
         <div style={{
           marginBottom: 14, padding: '10px 14px', borderRadius: 8, fontSize: 13,
           display: 'flex', alignItems: 'center', gap: 8,
-          background: result.ok ? '#064e3b' : '#450a0a',
-          color: result.ok ? '#34d399' : '#f87171',
+          background: result.ok ? 'var(--status-success-bg)' : 'var(--status-error-bg)',
+          color: result.ok ? 'var(--status-success)' : 'var(--status-error)',
         }}>
           {result.ok ? <CheckCircle size={15} /> : <XCircle size={15} />}
           {result.message}
@@ -67,7 +67,7 @@ export default function TargetPage() {
             checked={!!cfg.use_ssl}
             onChange={e => set('use_ssl', e.target.checked)}
           />
-          <label htmlFor="ssl" style={{ fontSize: 13, color: '#94a3b8', cursor: 'pointer' }}>Use SSL / HTTPS</label>
+          <label htmlFor="ssl" style={{ fontSize: 13, color: 'var(--secondary-foreground)', cursor: 'pointer' }}>Use SSL / HTTPS</label>
         </div>
       </div>
 
@@ -92,7 +92,7 @@ export default function TargetPage() {
 
       <div style={{ ...card, marginTop: 14 }}>
         <div style={sectionTitle}>Write Mechanism</div>
-        <p style={{ fontSize: 12, color: '#64748b', marginBottom: 12, marginTop: 0 }}>
+        <p style={{ fontSize: 12, color: 'var(--secondary-foreground)', marginBottom: 12, marginTop: 0 }}>
           Choose how data is written to Dremio.
         </p>
         <div style={{ display: 'flex', gap: 10, marginBottom: 16 }}>
@@ -113,7 +113,7 @@ export default function TargetPage() {
         </div>
 
         {cfg.mode === 'b' && (
-          <div style={{ borderTop: '1px solid #334155', paddingTop: 14 }}>
+          <div style={{ borderTop: '1px solid var(--border)', paddingTop: 14 }}>
             <div style={{ ...sectionTitle, marginBottom: 12 }}>PyIceberg Catalog Settings</div>
             <Field label="Iceberg Catalog URL" value={cfg.iceberg_catalog_url ?? ''} onChange={v => set('iceberg_catalog_url', v)} placeholder="https://catalog.example.com" />
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12, marginTop: 12 }}>
@@ -158,19 +158,19 @@ function ModeCard({ active, label, badge, desc, onClick }: {
       onClick={onClick}
       style={{
         flex: 1, padding: '12px 14px', borderRadius: 8, cursor: 'pointer',
-        border: `2px solid ${active ? '#34d399' : '#334155'}`,
-        background: active ? '#0d2e22' : '#0f172a',
+        border: `2px solid ${active ? 'var(--primary)' : 'var(--border)'}`,
+        background: active ? 'var(--selected)' : 'var(--card)',
         transition: 'all 0.15s',
       }}
     >
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6 }}>
-        <span style={{ fontSize: 13, fontWeight: 600, color: active ? '#34d399' : '#e2e8f0' }}>{label}</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: active ? 'var(--accent)' : 'var(--foreground)' }}>{label}</span>
         <span style={{
           fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 4,
-          background: active ? '#34d399' : '#334155', color: active ? '#0f172a' : '#94a3b8',
+          background: active ? 'var(--primary)' : 'var(--muted)', color: active ? '#fff' : 'var(--secondary-foreground)',
         }}>{badge}</span>
       </div>
-      <p style={{ margin: 0, fontSize: 12, color: '#64748b', lineHeight: 1.5 }}>{desc}</p>
+      <p style={{ margin: 0, fontSize: 12, color: 'var(--secondary-foreground)', lineHeight: 1.5 }}>{desc}</p>
     </div>
   )
 }
@@ -206,25 +206,25 @@ function Field({ label, value, onChange, placeholder, secret, datalist }: {
 }
 
 const card: React.CSSProperties = {
-  background: '#1e293b', borderRadius: 10, padding: 16, border: '1px solid #334155',
+  background: 'var(--card)', borderRadius: 10, padding: 16, border: '1px solid var(--border)',
 }
 const sectionTitle: React.CSSProperties = {
-  fontSize: 11, fontWeight: 600, color: '#64748b',
+  fontSize: 11, fontWeight: 600, color: 'var(--muted-foreground)',
   textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12,
 }
-const lbl: React.CSSProperties = { display: 'block', fontSize: 12, color: '#94a3b8', marginBottom: 4 }
+const lbl: React.CSSProperties = { display: 'block', fontSize: 12, color: 'var(--secondary-foreground)', marginBottom: 4 }
 const inp: React.CSSProperties = {
   width: '100%', boxSizing: 'border-box',
-  background: '#0f172a', border: '1px solid #334155', borderRadius: 7,
-  padding: '8px 10px', color: '#e2e8f0', fontSize: 13, outline: 'none',
+  background: '#fff', border: '1px solid var(--border)', borderRadius: 4,
+  padding: '7px 10px', color: 'var(--foreground)', fontSize: 13, outline: 'none',
 }
 const btnPrimary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '8px 16px', borderRadius: 7, border: 'none', cursor: 'pointer',
-  background: '#34d399', color: '#0f172a', fontWeight: 600, fontSize: 13,
+  padding: '8px 16px', borderRadius: 6, border: 'none', cursor: 'pointer',
+  background: 'var(--primary)', color: '#fff', fontWeight: 600, fontSize: 13,
 }
 const btnSecondary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '8px 14px', borderRadius: 7, border: '1px solid #334155', cursor: 'pointer',
-  background: 'transparent', color: '#94a3b8', fontSize: 13,
+  padding: '8px 14px', borderRadius: 6, border: '1px solid var(--border)', cursor: 'pointer',
+  background: 'transparent', color: 'var(--secondary-foreground)', fontSize: 13,
 }

@@ -54,8 +54,8 @@ export default function CopyIntoPage() {
 
   return (
     <div style={{ padding: 24, maxWidth: 720 }}>
-      <h1 style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 700, color: '#f1f5f9' }}>COPY INTO</h1>
-      <p style={{ margin: '0 0 20px', color: '#64748b', fontSize: 13 }}>
+      <h1 style={{ margin: '0 0 6px', fontSize: 20, fontWeight: 700, color: 'var(--foreground)' }}>COPY INTO</h1>
+      <p style={{ margin: '0 0 20px', color: 'var(--secondary-foreground)', fontSize: 13 }}>
         Use Dremio's native COPY INTO command to load files from a registered source directly into an Iceberg table.
         Dremio tracks which files have been loaded, so re-running is safe.
       </p>
@@ -64,8 +64,8 @@ export default function CopyIntoPage() {
         <div style={{
           marginBottom: 14, padding: '10px 14px', borderRadius: 8, fontSize: 13,
           display: 'flex', alignItems: 'center', gap: 8,
-          background: result.ok ? '#064e3b' : '#450a0a',
-          color: result.ok ? '#34d399' : '#f87171',
+          background: result.ok ? 'var(--status-success-bg)' : 'var(--status-error-bg)',
+          color: result.ok ? 'var(--status-success)' : 'var(--status-error)',
         }}>
           {result.ok ? <CheckCircle size={15} /> : <XCircle size={15} />}
           {result.message}
@@ -111,7 +111,7 @@ export default function CopyIntoPage() {
                 type="checkbox" id="hdr" checked={csvHeader}
                 onChange={e => setCsvHeader(e.target.checked)}
               />
-              <label htmlFor="hdr" style={{ fontSize: 13, color: '#94a3b8', cursor: 'pointer' }}>First row is header</label>
+              <label htmlFor="hdr" style={{ fontSize: 13, color: 'var(--secondary-foreground)', cursor: 'pointer' }}>First row is header</label>
             </div>
           </div>
         )}
@@ -138,8 +138,8 @@ export default function CopyIntoPage() {
         <div style={{ marginTop: 16 }}>
           <div style={sectionTitle}>Generated SQL</div>
           <pre style={{
-            background: '#0f172a', border: '1px solid #334155', borderRadius: 8,
-            padding: 16, fontSize: 12, color: '#94a3b8', overflow: 'auto',
+            background: 'var(--muted)', border: '1px solid var(--border)', borderRadius: 8,
+            padding: 16, fontSize: 12, color: 'var(--accent)', overflow: 'auto',
             margin: 0, fontFamily: 'monospace', lineHeight: 1.6,
           }}>{sql}</pre>
         </div>
@@ -149,25 +149,25 @@ export default function CopyIntoPage() {
 }
 
 const card: React.CSSProperties = {
-  background: '#1e293b', borderRadius: 10, padding: 16, border: '1px solid #334155',
+  background: 'var(--card)', borderRadius: 10, padding: 16, border: '1px solid var(--border)',
 }
 const sectionTitle: React.CSSProperties = {
-  fontSize: 11, fontWeight: 600, color: '#64748b',
+  fontSize: 11, fontWeight: 600, color: 'var(--muted-foreground)',
   textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 12,
 }
-const lbl: React.CSSProperties = { display: 'block', fontSize: 12, color: '#94a3b8', marginBottom: 4 }
+const lbl: React.CSSProperties = { display: 'block', fontSize: 12, color: 'var(--secondary-foreground)', marginBottom: 4 }
 const inp: React.CSSProperties = {
   width: '100%', boxSizing: 'border-box',
-  background: '#0f172a', border: '1px solid #334155', borderRadius: 7,
-  padding: '8px 10px', color: '#e2e8f0', fontSize: 13, outline: 'none',
+  background: '#fff', border: '1px solid var(--border)', borderRadius: 4,
+  padding: '7px 10px', color: 'var(--foreground)', fontSize: 13, outline: 'none',
 }
 const btnPrimary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '8px 16px', borderRadius: 7, border: 'none', cursor: 'pointer',
-  background: '#34d399', color: '#0f172a', fontWeight: 600, fontSize: 13,
+  padding: '8px 16px', borderRadius: 6, border: 'none', cursor: 'pointer',
+  background: 'var(--primary)', color: '#fff', fontWeight: 600, fontSize: 13,
 }
 const btnSecondary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '8px 14px', borderRadius: 7, border: '1px solid #334155', cursor: 'pointer',
-  background: 'transparent', color: '#94a3b8', fontSize: 13,
+  padding: '8px 14px', borderRadius: 6, border: '1px solid var(--border)', cursor: 'pointer',
+  background: 'transparent', color: 'var(--secondary-foreground)', fontSize: 13,
 }

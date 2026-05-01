@@ -34,14 +34,14 @@ export default function SettingsPage() {
 
   return (
     <div style={{ padding: 24, maxWidth: 680 }}>
-      <h1 style={{ margin: '0 0 20px', fontSize: 20, fontWeight: 700, color: '#f1f5f9' }}>Settings</h1>
+      <h1 style={{ margin: '0 0 20px', fontSize: 20, fontWeight: 700, color: 'var(--foreground)' }}>Settings</h1>
 
       {result && (
         <div style={{
           marginBottom: 14, padding: '10px 14px', borderRadius: 8, fontSize: 13,
           display: 'flex', alignItems: 'center', gap: 8,
-          background: result.ok ? '#064e3b' : '#450a0a',
-          color: result.ok ? '#34d399' : '#f87171',
+          background: result.ok ? 'var(--status-success-bg)' : 'var(--status-error-bg)',
+          color: result.ok ? 'var(--status-success)' : 'var(--status-error)',
         }}>
           {result.ok ? <CheckCircle size={15} /> : <XCircle size={15} />}
           {result.message}
@@ -60,9 +60,9 @@ export default function SettingsPage() {
             onClick={() => setTab(id)}
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
-              padding: '7px 14px', borderRadius: 7, border: 'none', cursor: 'pointer', fontSize: 13,
-              background: tab === id ? '#334155' : 'transparent',
-              color: tab === id ? '#f1f5f9' : '#64748b',
+              padding: '7px 14px', borderRadius: 6, border: 'none', cursor: 'pointer', fontSize: 13,
+              background: tab === id ? 'var(--selected)' : 'transparent',
+              color: tab === id ? 'var(--accent)' : 'var(--secondary-foreground)',
               fontWeight: tab === id ? 600 : 400,
             }}
           >
@@ -108,7 +108,7 @@ function NotificationsTab({ onResult }: { onResult: (r: any) => void }) {
 
   return (
     <>
-      <p style={{ margin: '0 0 16px', color: '#64748b', fontSize: 13 }}>
+      <p style={{ margin: '0 0 16px', color: 'var(--secondary-foreground)', fontSize: 13 }}>
         Send email or Slack alerts when a load job fails.
       </p>
 
@@ -196,9 +196,9 @@ function VaultTab({ onResult }: { onResult: (r: any) => void }) {
 
   return (
     <>
-      <p style={{ margin: '0 0 16px', color: '#64748b', fontSize: 13 }}>
-        Use <code style={{ color: '#c084fc' }}>vault:path#field</code> in connection credentials to resolve secrets from HashiCorp Vault.
-        Or use <code style={{ color: '#f59e0b' }}>{'${ENV_VAR}'}</code> for environment variables.
+      <p style={{ margin: '0 0 16px', color: 'var(--secondary-foreground)', fontSize: 13 }}>
+        Use <code style={{ color: 'var(--accent)' }}>vault:path#field</code> in connection credentials to resolve secrets from HashiCorp Vault.
+        Or use <code style={{ color: 'var(--accent)' }}>{'${ENV_VAR}'}</code> for environment variables.
       </p>
 
       <div style={card}>
@@ -273,7 +273,7 @@ function AgentTab({ onResult }: { onResult: (r: any) => void }) {
 
   return (
     <>
-      <p style={{ margin: '0 0 16px', color: '#64748b', fontSize: 13 }}>
+      <p style={{ margin: '0 0 16px', color: 'var(--secondary-foreground)', fontSize: 13 }}>
         Enable the AI Agent to let users manage data pipelines using natural language.
         Powered by Anthropic Claude.
       </p>
@@ -282,7 +282,7 @@ function AgentTab({ onResult }: { onResult: (r: any) => void }) {
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <div>
             <div style={sectionTitle}>AI Agent</div>
-            <div style={{ fontSize: 12, color: '#475569', marginTop: 2 }}>
+            <div style={{ fontSize: 12, color: 'var(--secondary-foreground)', marginTop: 2 }}>
               Show the Agent tab in the sidebar and allow chat interactions
             </div>
           </div>
@@ -339,7 +339,7 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
       onClick={() => onChange(!checked)}
       style={{
         width: 36, height: 20, borderRadius: 10, cursor: 'pointer', position: 'relative',
-        background: checked ? '#34d399' : '#334155', transition: 'background 0.2s',
+        background: checked ? 'var(--primary)' : 'var(--border)', transition: 'background 0.2s',
       }}
     >
       <div style={{
@@ -352,25 +352,25 @@ function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean
 }
 
 const card: React.CSSProperties = {
-  background: '#1e293b', borderRadius: 10, padding: 16, border: '1px solid #334155',
+  background: 'var(--card)', borderRadius: 10, padding: 16, border: '1px solid var(--border)',
 }
 const sectionTitle: React.CSSProperties = {
-  fontSize: 11, fontWeight: 600, color: '#64748b',
+  fontSize: 11, fontWeight: 600, color: 'var(--muted-foreground)',
   textTransform: 'uppercase', letterSpacing: '0.05em',
 }
-const lbl: React.CSSProperties = { display: 'block', fontSize: 12, color: '#94a3b8', marginBottom: 4 }
+const lbl: React.CSSProperties = { display: 'block', fontSize: 12, color: 'var(--secondary-foreground)', marginBottom: 4 }
 const inp: React.CSSProperties = {
   width: '100%', boxSizing: 'border-box',
-  background: '#0f172a', border: '1px solid #334155', borderRadius: 7,
-  padding: '8px 10px', color: '#e2e8f0', fontSize: 13, outline: 'none',
+  background: '#fff', border: '1px solid var(--border)', borderRadius: 4,
+  padding: '7px 10px', color: 'var(--foreground)', fontSize: 13, outline: 'none',
 }
 const btnPrimary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '8px 16px', borderRadius: 7, border: 'none', cursor: 'pointer',
-  background: '#34d399', color: '#0f172a', fontWeight: 600, fontSize: 13,
+  padding: '8px 16px', borderRadius: 6, border: 'none', cursor: 'pointer',
+  background: 'var(--primary)', color: '#fff', fontWeight: 600, fontSize: 13,
 }
 const btnSecondary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '8px 14px', borderRadius: 7, border: '1px solid #334155', cursor: 'pointer',
-  background: 'transparent', color: '#94a3b8', fontSize: 13,
+  padding: '8px 14px', borderRadius: 6, border: '1px solid var(--border)', cursor: 'pointer',
+  background: 'transparent', color: 'var(--secondary-foreground)', fontSize: 13,
 }

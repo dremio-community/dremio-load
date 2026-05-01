@@ -44,12 +44,12 @@ export default function PipelinePage() {
   useEffect(() => { load() }, [])
 
   if (loading) return <div style={centerMsg}>Loading pipeline overview…</div>
-  if (error) return <div style={{ ...centerMsg, color: '#f87171' }}>{error}</div>
+  if (error) return <div style={{ ...centerMsg, color: 'var(--status-error)' }}>{error}</div>
 
   return (
     <div style={{ padding: 24 }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#f1f5f9' }}>Pipeline Overview</h1>
+        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--foreground)' }}>Pipeline Overview</h1>
         <button onClick={load} style={btnSecondary}>
           <RefreshCw size={14} /> Refresh
         </button>
@@ -70,7 +70,7 @@ export default function PipelinePage() {
 
 function PipelineCard({ job }: { job: JobOverview }) {
   const navigate = useNavigate()
-  const srcColor = SOURCE_COLORS[job.source_type] ?? '#64748b'
+  const srcColor = SOURCE_COLORS[job.source_type] ?? 'var(--secondary-foreground)'
   const lastStatus = job.last_run?.status
   const modeLabel = job.target_mode === 'b' ? 'PyIceberg Direct' : 'Dremio SQL'
   const [srcHover, setSrcHover] = useState(false)
@@ -85,21 +85,21 @@ function PipelineCard({ job }: { job: JobOverview }) {
           onMouseEnter={() => setSrcHover(true)}
           onMouseLeave={() => setSrcHover(false)}
           title="Click to edit job"
-          style={{ ...block, borderColor: srcHover ? srcColor : `${srcColor}88`, minWidth: 160, cursor: 'pointer', transition: 'border-color 0.15s, background 0.15s', background: srcHover ? '#1a2236' : '#0f172a' }}
+          style={{ ...block, borderColor: srcHover ? srcColor : `${srcColor}88`, minWidth: 160, cursor: 'pointer', transition: 'border-color 0.15s, background 0.15s', background: srcHover ? 'var(--background-hover)' : 'var(--card)' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
             <div style={{ fontSize: 10, fontWeight: 700, color: srcColor, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Source</div>
             {srcHover && <ExternalLink size={10} color={srcColor} />}
           </div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{job.source_label}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--foreground)' }}>{job.source_label}</div>
           {job.tables.length > 0 && (
-            <div style={{ fontSize: 11, color: '#64748b', marginTop: 3 }}>
+            <div style={{ fontSize: 11, color: 'var(--secondary-foreground)', marginTop: 3 }}>
               {job.tables.length === 1 ? job.tables[0] : `${job.tables.length} tables`}
             </div>
           )}
         </div>
 
-        <ArrowRight size={16} color="#334155" />
+        <ArrowRight size={16} color="var(--border)" />
 
         {/* Job block */}
         <div style={{ ...block, borderColor: '#4f46e5', flex: 1 }}>
@@ -107,17 +107,17 @@ function PipelineCard({ job }: { job: JobOverview }) {
             Job
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <span style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{job.name}</span>
+            <span style={{ fontSize: 13, fontWeight: 600, color: 'var(--foreground)' }}>{job.name}</span>
             {!job.enabled && (
-              <span style={badge('#334155', '#64748b')}>Disabled</span>
+              <span style={badge('var(--muted)', 'var(--secondary-foreground)')}>Disabled</span>
             )}
           </div>
-          <div style={{ fontSize: 11, color: '#64748b', marginTop: 3 }}>
+          <div style={{ fontSize: 11, color: 'var(--secondary-foreground)', marginTop: 3 }}>
             {job.load_mode} {job.schedule ? `· ${job.schedule}` : '· manual'}
           </div>
         </div>
 
-        <ArrowRight size={16} color="#334155" />
+        <ArrowRight size={16} color="var(--border)" />
 
         {/* Target block — click to go to target settings */}
         <div
@@ -125,32 +125,32 @@ function PipelineCard({ job }: { job: JobOverview }) {
           onMouseEnter={() => setTgtHover(true)}
           onMouseLeave={() => setTgtHover(false)}
           title="Click to configure target"
-          style={{ ...block, borderColor: tgtHover ? '#0ea5e9' : '#0ea5e988', minWidth: 200, cursor: 'pointer', transition: 'border-color 0.15s, background 0.15s', background: tgtHover ? '#0f1f2e' : '#0f172a' }}
+          style={{ ...block, borderColor: tgtHover ? 'var(--primary)' : 'var(--border)', minWidth: 200, cursor: 'pointer', transition: 'border-color 0.15s, background 0.15s', background: tgtHover ? 'var(--background-hover)' : 'var(--card)' }}
         >
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-            <div style={{ fontSize: 10, fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Target · {modeLabel}</div>
-            {tgtHover && <ExternalLink size={10} color="#38bdf8" />}
+            <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Target · {modeLabel}</div>
+            {tgtHover && <ExternalLink size={10} color="var(--accent)" />}
           </div>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#e2e8f0' }}>{job.target_host || 'Not configured'}</div>
-          <div style={{ fontSize: 11, color: '#64748b', marginTop: 3 }}>{job.target_table || 'Click to set up →'}</div>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--foreground)' }}>{job.target_host || 'Not configured'}</div>
+          <div style={{ fontSize: 11, color: 'var(--secondary-foreground)', marginTop: 3 }}>{job.target_table || 'Click to set up →'}</div>
         </div>
 
         {/* Status */}
         <div style={{ minWidth: 110, textAlign: 'right' }}>
           <StatusBadge status={lastStatus} />
           {job.total_runs > 0 && (
-            <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>
+            <div style={{ fontSize: 11, color: 'var(--secondary-foreground)', marginTop: 4 }}>
               {job.success_rate !== undefined ? `${Math.round(job.success_rate * 100)}%` : '—'} success · {job.total_runs} runs
             </div>
           )}
           {!job.total_runs && (
-            <div style={{ fontSize: 11, color: '#64748b', marginTop: 4 }}>Never run</div>
+            <div style={{ fontSize: 11, color: 'var(--secondary-foreground)', marginTop: 4 }}>Never run</div>
           )}
         </div>
       </div>
 
       {job.last_run?.error && (
-        <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 6, background: '#450a0a', color: '#fca5a5', fontSize: 12 }}>
+        <div style={{ marginTop: 10, padding: '8px 12px', borderRadius: 6, background: 'var(--status-error-bg)', color: 'var(--status-error)', fontSize: 12 }}>
           {job.last_run.error}
         </div>
       )}
@@ -159,19 +159,19 @@ function PipelineCard({ job }: { job: JobOverview }) {
 }
 
 function StatusBadge({ status }: { status?: string }) {
-  if (!status) return <span style={badge('#1e293b', '#64748b')}>—</span>
+  if (!status) return <span style={badge('var(--muted)', 'var(--secondary-foreground)')}>—</span>
   if (status === 'success') return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, ...badgeStyle('#064e3b', '#34d399') }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, ...badgeStyle('var(--status-success-bg)', 'var(--status-success)') }}>
       <CheckCircle size={11} /> Success
     </span>
   )
   if (status === 'error') return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, ...badgeStyle('#450a0a', '#f87171') }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, ...badgeStyle('var(--status-error-bg)', 'var(--status-error)') }}>
       <XCircle size={11} /> Error
     </span>
   )
   return (
-    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, ...badgeStyle('#1c1917', '#a3a3a3') }}>
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, ...badgeStyle('var(--muted)', 'var(--secondary-foreground)') }}>
       <Clock size={11} /> {status}
     </span>
   )
@@ -185,20 +185,20 @@ function badgeStyle(bg: string, color: string): React.CSSProperties {
 }
 
 const card: React.CSSProperties = {
-  background: '#1e293b', borderRadius: 10, padding: '14px 16px', border: '1px solid #334155',
+  background: 'var(--card)', borderRadius: 10, padding: '14px 16px', border: '1px solid var(--border)',
 }
 const block: React.CSSProperties = {
-  padding: '10px 12px', borderRadius: 8, border: '1px solid', background: '#0f172a',
+  padding: '10px 12px', borderRadius: 8, border: '1px solid', background: 'var(--card)',
 }
 const centerMsg: React.CSSProperties = {
-  padding: 40, textAlign: 'center', color: '#64748b', fontSize: 14,
+  padding: 40, textAlign: 'center', color: 'var(--secondary-foreground)', fontSize: 14,
 }
 const emptyState: React.CSSProperties = {
-  padding: '40px', textAlign: 'center', color: '#64748b', fontSize: 14,
-  background: '#1e293b', borderRadius: 10, border: '1px solid #334155',
+  padding: '40px', textAlign: 'center', color: 'var(--secondary-foreground)', fontSize: 14,
+  background: 'var(--card)', borderRadius: 10, border: '1px solid var(--border)',
 }
 const btnSecondary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '7px 12px', borderRadius: 7, border: '1px solid #334155', cursor: 'pointer',
-  background: 'transparent', color: '#94a3b8', fontSize: 13,
+  padding: '7px 12px', borderRadius: 6, border: '1px solid var(--border)', cursor: 'pointer',
+  background: 'transparent', color: 'var(--secondary-foreground)', fontSize: 13,
 }

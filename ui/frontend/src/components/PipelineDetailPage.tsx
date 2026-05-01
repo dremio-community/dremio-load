@@ -88,10 +88,10 @@ export default function PipelineDetailPage() {
   }
 
   if (loading) return <div style={centerMsg}>Loading pipeline…</div>
-  if (!job) return <div style={{ ...centerMsg, color: '#f87171' }}>Job not found</div>
+  if (!job) return <div style={{ ...centerMsg, color: 'var(--status-error)' }}>Job not found</div>
 
   const srcType = job.source_type || ''
-  const srcColor = SOURCE_COLORS[srcType] || '#64748b'
+  const srcColor = SOURCE_COLORS[srcType] || 'var(--secondary-foreground)'
   const srcLabel = SOURCE_LABELS[srcType] || srcType
   const srcEmoji = SOURCE_EMOJI[srcType] || '📦'
   const tables: string[] = job.tables || []
@@ -138,7 +138,7 @@ export default function PipelineDetailPage() {
         <button onClick={() => navigate('/pipeline')} style={btnBack}>
           <ChevronLeft size={15} /> Pipeline
         </button>
-        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#f1f5f9', flex: 1 }}>{job.name}</h1>
+        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--foreground)', flex: 1 }}>{job.name}</h1>
         <button onClick={() => navigate('/')} style={btnGhost}><Pencil size={14} /> Edit Job</button>
         <button onClick={handleRun} disabled={triggering} style={btnPrimary}>
           {triggering ? <Loader2 size={14} style={{ animation: 'spin 1s linear infinite' }} /> : <Play size={14} />}
@@ -158,25 +158,25 @@ export default function PipelineDetailPage() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
             <div style={{ fontSize: 28 }}>{srcEmoji}</div>
             <div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9' }}>{srcLabel}</div>
-              <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{srcType}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--foreground)' }}>{srcLabel}</div>
+              <div style={{ fontSize: 11, color: 'var(--secondary-foreground)', marginTop: 2 }}>{srcType}</div>
             </div>
           </div>
 
           {/* Connection summary */}
           {connDisplay.length > 0 && (
-            <div style={{ marginBottom: 16, padding: '10px 12px', borderRadius: 8, background: '#0a1120' }}>
+            <div style={{ marginBottom: 16, padding: '10px 12px', borderRadius: 8, background: 'var(--muted)' }}>
               {connDisplay.map(([k, v]) => (
                 <div key={k} style={{ display: 'flex', gap: 8, marginBottom: 4, fontSize: 11 }}>
-                  <span style={{ color: '#475569', minWidth: 80, flexShrink: 0 }}>{k}</span>
-                  <span style={{ color: '#94a3b8', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{String(v)}</span>
+                  <span style={{ color: 'var(--muted-foreground)', minWidth: 80, flexShrink: 0 }}>{k}</span>
+                  <span style={{ color: 'var(--secondary-foreground)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{String(v)}</span>
                 </div>
               ))}
             </div>
           )}
 
           {/* Tables */}
-          <div style={{ fontSize: 10, fontWeight: 600, color: '#475569', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
+          <div style={{ fontSize: 10, fontWeight: 600, color: 'var(--muted-foreground)', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: 8 }}>
             Tables ({tables.length})
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -184,16 +184,16 @@ export default function PipelineDetailPage() {
               const stat = tableStats[t]
               const st = stat?.status
               return (
-                <div key={t} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', borderRadius: 6, background: '#0a1120' }}>
+                <div key={t} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 8px', borderRadius: 6, background: 'var(--muted)' }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    <Table2 size={11} color="#475569" />
-                    <span style={{ fontSize: 12, color: '#cbd5e1' }}>{t}</span>
+                    <Table2 size={11} color="var(--muted-foreground)" />
+                    <span style={{ fontSize: 12, color: 'var(--foreground)' }}>{t}</span>
                   </div>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                    {stat && <span style={{ fontSize: 11, color: '#64748b' }}>{(stat.rows || 0).toLocaleString()} rows</span>}
-                    {st === 'success' && <CheckCircle size={11} color="#34d399" />}
-                    {st === 'error'   && <XCircle size={11} color="#f87171" />}
-                    {!stat && <span style={{ fontSize: 11, color: '#334155' }}>—</span>}
+                    {stat && <span style={{ fontSize: 11, color: 'var(--secondary-foreground)' }}>{(stat.rows || 0).toLocaleString()} rows</span>}
+                    {st === 'success' && <CheckCircle size={11} color="var(--status-success)" />}
+                    {st === 'error'   && <XCircle size={11} color="var(--status-error)" />}
+                    {!stat && <span style={{ fontSize: 11, color: 'var(--muted-foreground)' }}>—</span>}
                   </div>
                 </div>
               )
@@ -206,7 +206,7 @@ export default function PipelineDetailPage() {
           {/* Arrows */}
           <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginBottom: 8, marginTop: 40 }}>
             <div style={flowLine} />
-            <ArrowRight size={20} color="#334155" style={{ flexShrink: 0 }} />
+            <ArrowRight size={20} color="var(--border)" style={{ flexShrink: 0 }} />
             <div style={flowLine} />
           </div>
 
@@ -218,21 +218,21 @@ export default function PipelineDetailPage() {
 
             {/* Mode + schedule */}
             <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
-              <span style={chip('#1e1b4b', '#818cf8')}>{job.load_mode || 'incremental'}</span>
-              <span style={chip('#1e293b', '#64748b')}>{job.schedule || 'manual'}</span>
+              <span style={chip('var(--selected)', '#818cf8')}>{job.load_mode || 'incremental'}</span>
+              <span style={chip('var(--muted)', 'var(--secondary-foreground)')}>{job.schedule || 'manual'}</span>
             </div>
 
             {/* Success rate bar */}
             {successRate !== null && (
               <div style={{ marginBottom: 16 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <span style={{ fontSize: 12, color: '#94a3b8' }}>Success rate</span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: successRate === 100 ? '#34d399' : successRate >= 80 ? '#fbbf24' : '#f87171' }}>
+                  <span style={{ fontSize: 12, color: 'var(--secondary-foreground)' }}>Success rate</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: successRate === 100 ? 'var(--status-success)' : successRate >= 80 ? 'var(--status-warning)' : 'var(--status-error)' }}>
                     {successRate}%
                   </span>
                 </div>
-                <div style={{ height: 6, borderRadius: 3, background: '#1e293b', overflow: 'hidden' }}>
-                  <div style={{ height: '100%', width: `${successRate}%`, background: successRate === 100 ? '#34d399' : successRate >= 80 ? '#fbbf24' : '#f87171', borderRadius: 3, transition: 'width 0.5s' }} />
+                <div style={{ height: 6, borderRadius: 3, background: 'var(--muted)', overflow: 'hidden' }}>
+                  <div style={{ height: '100%', width: `${successRate}%`, background: successRate === 100 ? 'var(--status-success)' : successRate >= 80 ? 'var(--status-warning)' : 'var(--status-error)', borderRadius: 3, transition: 'width 0.5s' }} />
                 </div>
               </div>
             )}
@@ -240,7 +240,7 @@ export default function PipelineDetailPage() {
             {/* Run dots */}
             {runSummaries.length > 0 && (
               <div style={{ marginBottom: 16 }}>
-                <div style={{ fontSize: 11, color: '#475569', marginBottom: 8 }}>Recent runs (newest first)</div>
+                <div style={{ fontSize: 11, color: 'var(--muted-foreground)', marginBottom: 8 }}>Recent runs (newest first)</div>
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   {runSummaries.map((r, i) => (
                     <div
@@ -248,12 +248,12 @@ export default function PipelineDetailPage() {
                       title={`${r.started_at?.slice(0, 16).replace('T', ' ')} · ${r.rows} rows${r.error ? ' · ' + r.error : ''}`}
                       style={{
                         width: 28, height: 28, borderRadius: 6,
-                        background: r.status === 'success' ? '#064e3b' : r.status === 'error' ? '#450a0a' : '#1e293b',
-                        border: `1px solid ${r.status === 'success' ? '#34d399' : r.status === 'error' ? '#f87171' : '#334155'}`,
+                        background: r.status === 'success' ? 'var(--status-success-bg)' : r.status === 'error' ? 'var(--status-error-bg)' : 'var(--muted)',
+                        border: `1px solid ${r.status === 'success' ? 'var(--status-success)' : r.status === 'error' ? 'var(--status-error)' : 'var(--border)'}`,
                         display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'default',
                       }}
                     >
-                      {r.status === 'success' ? <CheckCircle size={14} color="#34d399" /> : r.status === 'error' ? <XCircle size={14} color="#f87171" /> : <Clock size={14} color="#64748b" />}
+                      {r.status === 'success' ? <CheckCircle size={14} color="var(--status-success)" /> : r.status === 'error' ? <XCircle size={14} color="var(--status-error)" /> : <Clock size={14} color="var(--muted-foreground)" />}
                     </div>
                   ))}
                 </div>
@@ -262,51 +262,51 @@ export default function PipelineDetailPage() {
 
             {/* Last run summary */}
             {lastRun && (
-              <div style={{ padding: '10px 12px', borderRadius: 8, background: '#0a1120', fontSize: 12 }}>
-                <div style={{ color: '#64748b', marginBottom: 4 }}>Last run</div>
-                <div style={{ color: '#e2e8f0' }}>{lastRun.started_at?.slice(0, 16).replace('T', ' ')} UTC</div>
-                <div style={{ color: '#64748b', marginTop: 2 }}>{lastRun.rows.toLocaleString()} rows written</div>
-                {lastRun.error && <div style={{ color: '#f87171', marginTop: 4, fontSize: 11 }}>{lastRun.error}</div>}
+              <div style={{ padding: '10px 12px', borderRadius: 8, background: 'var(--muted)', fontSize: 12 }}>
+                <div style={{ color: 'var(--muted-foreground)', marginBottom: 4 }}>Last run</div>
+                <div style={{ color: 'var(--foreground)' }}>{lastRun.started_at?.slice(0, 16).replace('T', ' ')} UTC</div>
+                <div style={{ color: 'var(--secondary-foreground)', marginTop: 2 }}>{lastRun.rows.toLocaleString()} rows written</div>
+                {lastRun.error && <div style={{ color: 'var(--status-error)', marginTop: 4, fontSize: 11 }}>{lastRun.error}</div>}
               </div>
             )}
 
             {!runSummaries.length && (
-              <div style={{ color: '#334155', fontSize: 13, textAlign: 'center', padding: '20px 0' }}>No runs yet — hit Run Now to start</div>
+              <div style={{ color: 'var(--muted-foreground)', fontSize: 13, textAlign: 'center', padding: '20px 0' }}>No runs yet — hit Run Now to start</div>
             )}
           </div>
 
           {/* Arrow out */}
           <div style={{ display: 'flex', alignItems: 'center', width: '100%', marginTop: 8 }}>
             <div style={flowLine} />
-            <ArrowRight size={20} color="#334155" style={{ flexShrink: 0 }} />
+            <ArrowRight size={20} color="var(--border)" style={{ flexShrink: 0 }} />
             <div style={flowLine} />
           </div>
         </div>
 
         {/* TARGET */}
-        <div style={{ ...panel, borderColor: '#0ea5e9' }}>
-          <div style={{ fontSize: 10, fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
+        <div style={{ ...panel, borderColor: 'var(--primary)' }}>
+          <div style={{ fontSize: 10, fontWeight: 700, color: 'var(--accent)', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12 }}>
             Target · Dremio SQL
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
             <div style={{ fontSize: 28 }}>🎯</div>
             <div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#f1f5f9' }}>{target?.host || 'Not configured'}</div>
-              <div style={{ fontSize: 11, color: '#64748b', marginTop: 2 }}>{target?.catalog || ''}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: 'var(--foreground)' }}>{target?.host || 'Not configured'}</div>
+              <div style={{ fontSize: 11, color: 'var(--secondary-foreground)', marginTop: 2 }}>{target?.catalog || ''}</div>
             </div>
           </div>
 
           {/* Target table */}
-          <div style={{ marginBottom: 16, padding: '10px 12px', borderRadius: 8, background: '#0a1120' }}>
-            <div style={{ fontSize: 10, color: '#475569', marginBottom: 6 }}>Destination table</div>
+          <div style={{ marginBottom: 16, padding: '10px 12px', borderRadius: 8, background: 'var(--muted)' }}>
+            <div style={{ fontSize: 10, color: 'var(--muted-foreground)', marginBottom: 6 }}>Destination table</div>
             {targetTable ? (
               <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                <Database size={12} color="#0ea5e9" />
-                <span style={{ fontSize: 12, color: '#94a3b8', wordBreak: 'break-all' }}>{targetTable}</span>
+                <Database size={12} color="var(--accent)" />
+                <span style={{ fontSize: 12, color: 'var(--secondary-foreground)', wordBreak: 'break-all' }}>{targetTable}</span>
               </div>
             ) : (
-              <div style={{ fontSize: 12, color: '#334155' }}>Not set — edit job to configure</div>
+              <div style={{ fontSize: 12, color: 'var(--muted-foreground)' }}>Not set — edit job to configure</div>
             )}
           </div>
 
@@ -321,17 +321,17 @@ export default function PipelineDetailPage() {
           </button>
 
           {previewError && (
-            <div style={{ marginTop: 8, fontSize: 11, color: '#f87171', display: 'flex', gap: 6 }}>
+            <div style={{ marginTop: 8, fontSize: 11, color: 'var(--status-error)', display: 'flex', gap: 6 }}>
               <AlertCircle size={12} style={{ flexShrink: 0, marginTop: 1 }} />{previewError}
             </div>
           )}
 
           {/* Last successful row count */}
           {lastRun?.status === 'success' && (
-            <div style={{ marginTop: 16, padding: '10px 12px', borderRadius: 8, background: '#0a1120', fontSize: 12 }}>
-              <div style={{ color: '#64748b', marginBottom: 4 }}>Last write</div>
-              <div style={{ color: '#34d399', fontWeight: 700, fontSize: 16 }}>{lastRun.rows.toLocaleString()}</div>
-              <div style={{ color: '#64748b' }}>rows · {lastRun.started_at?.slice(0, 10)}</div>
+            <div style={{ marginTop: 16, padding: '10px 12px', borderRadius: 8, background: 'var(--status-success-bg)', fontSize: 12 }}>
+              <div style={{ color: 'var(--secondary-foreground)', marginBottom: 4 }}>Last write</div>
+              <div style={{ color: 'var(--status-success)', fontWeight: 700, fontSize: 16 }}>{lastRun.rows.toLocaleString()}</div>
+              <div style={{ color: 'var(--secondary-foreground)' }}>rows · {lastRun.started_at?.slice(0, 10)}</div>
             </div>
           )}
         </div>
@@ -340,24 +340,24 @@ export default function PipelineDetailPage() {
       {/* ── Data preview table ────────────────────────────────── */}
       {preview && (
         <div style={{ marginBottom: 24 }}>
-          <div style={{ fontSize: 13, fontWeight: 600, color: '#94a3b8', marginBottom: 10 }}>
+          <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--secondary-foreground)', marginBottom: 10 }}>
             Target Data Preview — {preview.rows.length} rows
           </div>
-          <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid #1e293b' }}>
+          <div style={{ overflowX: 'auto', borderRadius: 8, border: '1px solid var(--border)' }}>
             <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
               <thead>
-                <tr style={{ background: '#1e293b' }}>
+                <tr style={{ background: 'var(--muted)' }}>
                   {preview.columns.map(c => (
-                    <th key={c} style={{ padding: '8px 12px', textAlign: 'left', color: '#64748b', fontWeight: 600, whiteSpace: 'nowrap', borderBottom: '1px solid #334155' }}>{c}</th>
+                    <th key={c} style={{ padding: '8px 12px', textAlign: 'left', color: 'var(--muted-foreground)', fontWeight: 600, whiteSpace: 'nowrap', borderBottom: '1px solid var(--border)' }}>{c}</th>
                   ))}
                 </tr>
               </thead>
               <tbody>
                 {preview.rows.map((row, i) => (
-                  <tr key={i} style={{ background: i % 2 === 0 ? '#0f172a' : '#0a1120' }}>
+                  <tr key={i} style={{ background: i % 2 === 0 ? 'var(--card)' : 'var(--background)' }}>
                     {preview.columns.map(c => (
-                      <td key={c} style={{ padding: '7px 12px', color: '#cbd5e1', borderBottom: '1px solid #1e293b11', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {row[c] == null ? <span style={{ color: '#334155' }}>null</span> : String(row[c])}
+                      <td key={c} style={{ padding: '7px 12px', color: 'var(--foreground)', borderBottom: '1px solid var(--border)', maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {row[c] == null ? <span style={{ color: 'var(--muted-foreground)' }}>null</span> : String(row[c])}
                       </td>
                     ))}
                   </tr>
@@ -370,73 +370,75 @@ export default function PipelineDetailPage() {
 
       {/* ── Per-table run history ─────────────────────────────── */}
       <div>
-        <div style={{ fontSize: 13, fontWeight: 600, color: '#94a3b8', marginBottom: 10 }}>
+        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--secondary-foreground)', marginBottom: 10 }}>
           Per-table Run History
         </div>
-        <div style={{ borderRadius: 8, border: '1px solid #1e293b', overflow: 'hidden' }}>
+        <div style={{ borderRadius: 8, border: '1px solid var(--border)', overflow: 'hidden' }}>
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
             <thead>
-              <tr style={{ background: '#1e293b' }}>
+              <tr style={{ background: 'var(--muted)' }}>
                 {['Status', 'Table', 'Rows', 'Duration', 'Started', 'Error'].map(h => (
-                  <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: '#64748b', fontWeight: 600, borderBottom: '1px solid #334155' }}>{h}</th>
+                  <th key={h} style={{ padding: '8px 12px', textAlign: 'left', color: 'var(--muted-foreground)', fontWeight: 600, borderBottom: '1px solid var(--border)' }}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {runs.slice(0, 30).map((r, i) => (
-                <tr key={r.id} style={{ background: i % 2 === 0 ? '#0f172a' : '#0a1120' }}>
-                  <td style={{ padding: '7px 12px', borderBottom: '1px solid #1e293b22' }}>
+                <tr key={r.id} style={{ background: i % 2 === 0 ? 'var(--card)' : 'var(--background)' }}>
+                  <td style={{ padding: '7px 12px', borderBottom: '1px solid var(--border)' }}>
                     {r.status === 'success'
-                      ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#34d399' }}><CheckCircle size={11} /> OK</span>
-                      : <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: '#f87171' }}><XCircle size={11} /> Error</span>}
+                      ? <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--status-success)' }}><CheckCircle size={11} /> OK</span>
+                      : <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: 'var(--status-error)' }}><XCircle size={11} /> Error</span>}
                   </td>
-                  <td style={{ padding: '7px 12px', color: '#94a3b8', borderBottom: '1px solid #1e293b22' }}>{r.table_name || '—'}</td>
-                  <td style={{ padding: '7px 12px', color: '#cbd5e1', borderBottom: '1px solid #1e293b22' }}>{(r.rows || 0).toLocaleString()}</td>
-                  <td style={{ padding: '7px 12px', color: '#64748b', borderBottom: '1px solid #1e293b22' }}>{r.duration_s != null ? `${r.duration_s.toFixed(2)}s` : '—'}</td>
-                  <td style={{ padding: '7px 12px', color: '#64748b', borderBottom: '1px solid #1e293b22', whiteSpace: 'nowrap' }}>{r.started_at?.slice(0, 16).replace('T', ' ')}</td>
-                  <td style={{ padding: '7px 12px', color: '#f87171', borderBottom: '1px solid #1e293b22', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.error || ''}</td>
+                  <td style={{ padding: '7px 12px', color: 'var(--secondary-foreground)', borderBottom: '1px solid var(--border)' }}>{r.table_name || '—'}</td>
+                  <td style={{ padding: '7px 12px', color: 'var(--foreground)', borderBottom: '1px solid var(--border)' }}>{(r.rows || 0).toLocaleString()}</td>
+                  <td style={{ padding: '7px 12px', color: 'var(--secondary-foreground)', borderBottom: '1px solid var(--border)' }}>{r.duration_s != null ? `${r.duration_s.toFixed(2)}s` : '—'}</td>
+                  <td style={{ padding: '7px 12px', color: 'var(--secondary-foreground)', borderBottom: '1px solid var(--border)', whiteSpace: 'nowrap' }}>{r.started_at?.slice(0, 16).replace('T', ' ')}</td>
+                  <td style={{ padding: '7px 12px', color: 'var(--status-error)', borderBottom: '1px solid var(--border)', maxWidth: 300, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{r.error || ''}</td>
                 </tr>
               ))}
               {runs.length === 0 && (
-                <tr><td colSpan={6} style={{ padding: '20px 12px', textAlign: 'center', color: '#334155' }}>No runs yet</td></tr>
+                <tr><td colSpan={6} style={{ padding: '20px 12px', textAlign: 'center', color: 'var(--muted-foreground)' }}>No runs yet</td></tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
+
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }
 
 const panel: React.CSSProperties = {
   padding: '16px', borderRadius: 10, border: '1px solid',
-  background: '#0f172a', display: 'flex', flexDirection: 'column',
+  background: 'var(--card)', display: 'flex', flexDirection: 'column',
 }
 const flowLine: React.CSSProperties = {
-  flex: 1, height: 2, background: 'linear-gradient(90deg, #1e293b, #334155)',
+  flex: 1, height: 2, background: 'var(--border)',
 }
 const centerMsg: React.CSSProperties = {
-  padding: 60, textAlign: 'center', color: '#64748b', fontSize: 14,
+  padding: 60, textAlign: 'center', color: 'var(--secondary-foreground)', fontSize: 14,
 }
 const btnPrimary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '8px 14px', borderRadius: 7, border: 'none', cursor: 'pointer',
-  background: '#34d399', color: '#0f172a', fontWeight: 600, fontSize: 13,
+  padding: '8px 14px', borderRadius: 6, border: 'none', cursor: 'pointer',
+  background: 'var(--primary)', color: '#fff', fontWeight: 600, fontSize: 13,
 }
 const btnGhost: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
-  padding: '8px 12px', borderRadius: 7, border: '1px solid #334155', cursor: 'pointer',
-  background: 'transparent', color: '#94a3b8', fontSize: 13,
+  padding: '8px 12px', borderRadius: 6, border: '1px solid var(--border)', cursor: 'pointer',
+  background: 'transparent', color: 'var(--secondary-foreground)', fontSize: 13,
 }
 const btnBack: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 4,
-  padding: '6px 10px', borderRadius: 6, border: '1px solid #334155', cursor: 'pointer',
-  background: 'transparent', color: '#64748b', fontSize: 12,
+  padding: '6px 10px', borderRadius: 6, border: '1px solid var(--border)', cursor: 'pointer',
+  background: 'transparent', color: 'var(--secondary-foreground)', fontSize: 12,
 }
 const btnPreview: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6, width: '100%', justifyContent: 'center',
-  padding: '9px 12px', borderRadius: 7, border: '1px solid #0ea5e9', cursor: 'pointer',
-  background: 'transparent', color: '#38bdf8', fontSize: 13, fontWeight: 600,
+  padding: '9px 12px', borderRadius: 6, border: '1px solid var(--primary)', cursor: 'pointer',
+  background: 'transparent', color: 'var(--accent)', fontSize: 13, fontWeight: 600,
 }
 function chip(bg: string, color: string): React.CSSProperties {
   return { padding: '3px 8px', borderRadius: 4, fontSize: 11, fontWeight: 600, background: bg, color }

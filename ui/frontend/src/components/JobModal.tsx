@@ -403,7 +403,7 @@ export default function JobModal({ job, onClose, onSaved }: Props) {
       <div style={modal}>
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-          <h2 style={{ margin: 0, fontSize: 17, color: '#f1f5f9' }}>{isEdit ? 'Edit Job' : 'New Load Job'}</h2>
+          <h2 style={{ margin: 0, fontSize: 17, color: 'var(--foreground)' }}>{isEdit ? 'Edit Job' : 'New Load Job'}</h2>
           <button onClick={onClose} style={closeBtn}><X size={16} /></button>
         </div>
 
@@ -459,9 +459,9 @@ export default function JobModal({ job, onClose, onSaved }: Props) {
               title={targetConfigured === false ? 'Configure target connection first' : 'Browse Dremio catalog'}
               style={{
                 display: 'flex', alignItems: 'center', gap: 5,
-                padding: '8px 10px', borderRadius: 7, border: '1px solid #334155',
-                background: showCatalog ? '#1e3a2f' : '#0f172a',
-                color: showCatalog ? '#34d399' : '#64748b', cursor: 'pointer',
+                padding: '8px 10px', borderRadius: 6, border: '1px solid var(--border)',
+                background: showCatalog ? 'var(--selected)' : 'var(--card)',
+                color: showCatalog ? 'var(--accent)' : 'var(--secondary-foreground)', cursor: 'pointer',
                 fontSize: 12, whiteSpace: 'nowrap', flexShrink: 0,
               }}
             >
@@ -471,15 +471,15 @@ export default function JobModal({ job, onClose, onSaved }: Props) {
           {showCatalog && targetConfigured === false && (
             <div style={{
               marginTop: 6, padding: '12px 14px', borderRadius: 8,
-              border: '1px solid #854d0e', background: '#1c1400',
+              border: '1px solid var(--status-warning)', background: 'var(--status-warning-bg)',
               display: 'flex', alignItems: 'flex-start', gap: 10,
             }}>
-              <AlertCircle size={15} color="#fbbf24" style={{ flexShrink: 0, marginTop: 1 }} />
+              <AlertCircle size={15} color="var(--status-warning)" style={{ flexShrink: 0, marginTop: 1 }} />
               <div>
-                <div style={{ fontSize: 13, color: '#fde68a', fontWeight: 600, marginBottom: 4 }}>
+                <div style={{ fontSize: 13, color: 'var(--status-warning)', fontWeight: 600, marginBottom: 4 }}>
                   Dremio target not configured yet
                 </div>
-                <div style={{ fontSize: 12, color: '#92400e', marginBottom: 8 }}>
+                <div style={{ fontSize: 12, color: 'var(--secondary-foreground)', marginBottom: 8 }}>
                   Set up your Dremio connection on the Target page first, then come back to browse your catalog.
                 </div>
                 <button
@@ -487,7 +487,7 @@ export default function JobModal({ job, onClose, onSaved }: Props) {
                   style={{
                     display: 'inline-flex', alignItems: 'center', gap: 5,
                     padding: '6px 12px', borderRadius: 6, border: 'none', cursor: 'pointer',
-                    background: '#fbbf24', color: '#0f172a', fontWeight: 600, fontSize: 12,
+                    background: 'var(--primary)', color: '#fff', fontWeight: 600, fontSize: 12,
                   }}
                 >
                   <ExternalLink size={12} /> Go to Target Settings
@@ -519,7 +519,7 @@ export default function JobModal({ job, onClose, onSaved }: Props) {
               <span>Connection</span>
               {HELP_LINKS[sourceType] && (
                 <a href={HELP_LINKS[sourceType].url} target="_blank" rel="noopener noreferrer"
-                  style={{ fontSize: 11, color: '#38bdf8', textDecoration: 'none', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>
+                  style={{ fontSize: 11, color: 'var(--primary)', textDecoration: 'none', fontWeight: 400, textTransform: 'none', letterSpacing: 0 }}>
                   {HELP_LINKS[sourceType].label}
                 </a>
               )}
@@ -543,16 +543,16 @@ export default function JobModal({ job, onClose, onSaved }: Props) {
             {sourceType === 'google_ads' && (
               <div style={{ gridColumn: '1 / -1', marginTop: 4 }}>
                 {gOauthEmail ? (
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 8, background: '#0f2a1a', border: '1px solid #166534' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 14px', borderRadius: 8, background: 'var(--status-success-bg)', border: '1px solid var(--status-success)' }}>
                     <span style={{ fontSize: 18 }}>✓</span>
                     <div style={{ flex: 1 }}>
-                      <div style={{ fontSize: 13, color: '#34d399', fontWeight: 600 }}>Connected to Google Ads</div>
-                      <div style={{ fontSize: 12, color: '#64748b', marginTop: 2 }}>{gOauthEmail}</div>
+                      <div style={{ fontSize: 13, color: 'var(--status-success)', fontWeight: 600 }}>Connected to Google Ads</div>
+                      <div style={{ fontSize: 12, color: 'var(--secondary-foreground)', marginTop: 2 }}>{gOauthEmail}</div>
                     </div>
                     <button
                       type="button"
                       onClick={() => { setGOauthEmail(''); setConn_('refresh_token', '') }}
-                      style={{ fontSize: 12, color: '#64748b', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+                      style={{ fontSize: 12, color: 'var(--secondary-foreground)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
                     >
                       Re-authorize
                     </button>
@@ -565,9 +565,9 @@ export default function JobModal({ job, onClose, onSaved }: Props) {
                     style={{
                       display: 'flex', alignItems: 'center', gap: 10,
                       width: '100%', padding: '11px 16px', borderRadius: 8,
-                      border: '1px solid #334155', cursor: gOauthPending ? 'wait' : 'pointer',
-                      background: gOauthPending ? '#1e293b' : '#fff',
-                      color: gOauthPending ? '#64748b' : '#3c4043',
+                      border: '1px solid var(--border)', cursor: gOauthPending ? 'wait' : 'pointer',
+                      background: gOauthPending ? 'var(--muted)' : '#fff',
+                      color: gOauthPending ? 'var(--secondary-foreground)' : '#3c4043',
                       fontSize: 14, fontWeight: 600, justifyContent: 'center',
                       opacity: gOauthPending ? 0.7 : 1,
                     }}
@@ -594,7 +594,7 @@ export default function JobModal({ job, onClose, onSaved }: Props) {
                   checked={conn.path_style === 'true'}
                   onChange={e => setConn_('path_style', String(e.target.checked))}
                 />
-                <label htmlFor="path_style" style={{ fontSize: 13, color: '#94a3b8', cursor: 'pointer' }}>
+                <label htmlFor="path_style" style={{ fontSize: 13, color: 'var(--secondary-foreground)', cursor: 'pointer' }}>
                   Use path-style URLs (required for most S3-compatible storage)
                 </label>
               </div>
@@ -642,7 +642,7 @@ export default function JobModal({ job, onClose, onSaved }: Props) {
                   checked={conn.csv_has_header !== 'false'}
                   onChange={e => setConn_('csv_has_header', e.target.checked ? 'true' : 'false')}
                 />
-                <label htmlFor="csv_has_header" style={{ fontSize: 13, color: '#94a3b8', cursor: 'pointer' }}>
+                <label htmlFor="csv_has_header" style={{ fontSize: 13, color: 'var(--secondary-foreground)', cursor: 'pointer' }}>
                   First row is a header
                 </label>
               </div>
@@ -679,7 +679,7 @@ export default function JobModal({ job, onClose, onSaved }: Props) {
               placeholder="Paste from TS pipeline Webhooks tab" />
           </div>
         </div>
-        <div style={{ fontSize: 12, color: '#475569', marginBottom: 14 }}>
+        <div style={{ fontSize: 12, color: 'var(--muted-foreground)', marginBottom: 14 }}>
           After a successful load, Dremio Load will call the Transform Studio webhook to trigger the linked pipeline.
         </div>
 
@@ -738,20 +738,20 @@ function CatalogPicker({ onSelect, onClose, onConnectionError }: {
 
   return (
     <div style={{
-      marginTop: 6, border: '1px solid #334155', borderRadius: 8,
-      background: '#0f172a', maxHeight: 240, overflowY: 'auto',
+      marginTop: 6, border: '1px solid var(--border)', borderRadius: 8,
+      background: 'var(--card)', maxHeight: 240, overflowY: 'auto',
     }}>
-      {loading && <div style={{ padding: '12px 14px', color: '#64748b', fontSize: 12 }}>Connecting to Dremio…</div>}
+      {loading && <div style={{ padding: '12px 14px', color: 'var(--muted-foreground)', fontSize: 12 }}>Connecting to Dremio…</div>}
       {error && (
         <div style={{ padding: '12px 14px' }}>
-          <div style={{ color: '#f87171', fontSize: 12, marginBottom: isConnErr ? 8 : 0 }}>{error}</div>
+          <div style={{ color: 'var(--status-error)', fontSize: 12, marginBottom: isConnErr ? 8 : 0 }}>{error}</div>
           {isConnErr && (
             <button
               onClick={onConnectionError}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 5,
                 padding: '5px 10px', borderRadius: 5, border: 'none', cursor: 'pointer',
-                background: '#fbbf24', color: '#0f172a', fontWeight: 600, fontSize: 11,
+                background: 'var(--primary)', color: '#fff', fontWeight: 600, fontSize: 11,
               }}
             >
               <ExternalLink size={11} /> Fix Target Settings
@@ -760,7 +760,7 @@ function CatalogPicker({ onSelect, onClose, onConnectionError }: {
         </div>
       )}
       {!loading && !error && namespaces.length === 0 && (
-        <div style={{ padding: '12px 14px', color: '#64748b', fontSize: 12 }}>No namespaces found. Check your target connection.</div>
+        <div style={{ padding: '12px 14px', color: 'var(--muted-foreground)', fontSize: 12 }}>No namespaces found. Check your target connection.</div>
       )}
       {namespaces.map(ns => (
         <div key={ns}>
@@ -769,15 +769,15 @@ function CatalogPicker({ onSelect, onClose, onConnectionError }: {
             style={{
               display: 'flex', alignItems: 'center', gap: 6,
               padding: '7px 12px', cursor: 'pointer', fontSize: 12,
-              color: '#94a3b8', borderBottom: '1px solid #1e293b',
+              color: 'var(--secondary-foreground)', borderBottom: '1px solid var(--border)',
             }}
-            onMouseEnter={e => (e.currentTarget.style.background = '#1e293b')}
+            onMouseEnter={e => (e.currentTarget.style.background = 'var(--background-hover)')}
             onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
           >
             {expanded[ns] ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
-            <Database size={12} color="#64748b" />
+            <Database size={12} color="var(--muted-foreground)" />
             <span>{ns}</span>
-            {loadingNs === ns && <span style={{ marginLeft: 'auto', color: '#64748b' }}>…</span>}
+            {loadingNs === ns && <span style={{ marginLeft: 'auto', color: 'var(--muted-foreground)' }}>…</span>}
           </div>
           {expanded[ns]?.map(tbl => (
             <div
@@ -786,14 +786,14 @@ function CatalogPicker({ onSelect, onClose, onConnectionError }: {
               style={{
                 display: 'flex', alignItems: 'center', gap: 6,
                 padding: '6px 12px 6px 28px', cursor: 'pointer', fontSize: 12,
-                color: '#cbd5e1', borderBottom: '1px solid #1e293b11',
+                color: 'var(--foreground)', borderBottom: '1px solid var(--border)',
               }}
-              onMouseEnter={e => (e.currentTarget.style.background = '#1e3a2f')}
+              onMouseEnter={e => (e.currentTarget.style.background = 'var(--selected)')}
               onMouseLeave={e => (e.currentTarget.style.background = 'transparent')}
             >
-              <Table2 size={11} color="#64748b" />
+              <Table2 size={11} color="var(--muted-foreground)" />
               <span>{tbl}</span>
-              <span style={{ marginLeft: 'auto', fontSize: 11, color: '#334155' }}>select →</span>
+              <span style={{ marginLeft: 'auto', fontSize: 11, color: 'var(--muted-foreground)' }}>select →</span>
             </div>
           ))}
         </div>
@@ -803,37 +803,37 @@ function CatalogPicker({ onSelect, onClose, onConnectionError }: {
 }
 
 const overlay: React.CSSProperties = {
-  position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.65)',
+  position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.35)',
   display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000,
 }
 const modal: React.CSSProperties = {
-  background: '#1e293b', borderRadius: 12, padding: 24, width: 660,
-  maxHeight: '90vh', overflowY: 'auto', border: '1px solid #334155',
+  background: '#fff', borderRadius: 12, padding: 24, width: 660,
+  maxHeight: '90vh', overflowY: 'auto', border: '1px solid var(--border)',
 }
 const closeBtn: React.CSSProperties = {
-  background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', padding: 4,
+  background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-foreground)', padding: 4,
 }
 const field: React.CSSProperties = { marginBottom: 12 }
-const lbl: React.CSSProperties = { display: 'block', fontSize: 12, color: '#94a3b8', marginBottom: 4 }
+const lbl: React.CSSProperties = { display: 'block', fontSize: 12, color: 'var(--secondary-foreground)', marginBottom: 4 }
 const inp: React.CSSProperties = {
   width: '100%', boxSizing: 'border-box',
-  background: '#0f172a', border: '1px solid #334155', borderRadius: 7,
-  padding: '8px 10px', color: '#e2e8f0', fontSize: 13, outline: 'none',
+  background: '#fff', border: '1px solid var(--border)', borderRadius: 4,
+  padding: '7px 10px', color: 'var(--foreground)', fontSize: 13, outline: 'none',
 }
 const sectionDivider: React.CSSProperties = {
-  fontSize: 11, fontWeight: 600, color: '#64748b',
+  fontSize: 11, fontWeight: 600, color: 'var(--muted-foreground)',
   textTransform: 'uppercase', letterSpacing: '0.05em',
-  margin: '16px 0 10px', paddingTop: 14, borderTop: '1px solid #1e293b',
+  margin: '16px 0 10px', paddingTop: 14, borderTop: '1px solid var(--border)',
 }
 const errBox: React.CSSProperties = {
-  background: '#450a0a', color: '#f87171', borderRadius: 8,
+  background: 'var(--status-error-bg)', color: 'var(--status-error)', borderRadius: 8,
   padding: '10px 14px', marginBottom: 14, fontSize: 13,
 }
 const btnPrimary: React.CSSProperties = {
-  padding: '8px 18px', borderRadius: 7, border: 'none', cursor: 'pointer',
-  background: '#34d399', color: '#0f172a', fontWeight: 600, fontSize: 13,
+  padding: '8px 18px', borderRadius: 6, border: 'none', cursor: 'pointer',
+  background: 'var(--primary)', color: '#fff', fontWeight: 600, fontSize: 13,
 }
 const btnGhost: React.CSSProperties = {
-  padding: '8px 14px', borderRadius: 7, border: '1px solid #334155', cursor: 'pointer',
-  background: 'transparent', color: '#94a3b8', fontSize: 13,
+  padding: '8px 14px', borderRadius: 6, border: '1px solid var(--border)', cursor: 'pointer',
+  background: 'transparent', color: 'var(--secondary-foreground)', fontSize: 13,
 }

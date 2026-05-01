@@ -99,20 +99,20 @@ export default function AgentPage() {
   }
 
   if (enabled === null) {
-    return <div style={{ padding: 32, color: '#64748b' }}>Loading…</div>
+    return <div style={{ padding: 32, color: 'var(--muted-foreground)' }}>Loading…</div>
   }
 
   if (!enabled) {
     return (
       <div style={{ padding: 32, maxWidth: 480 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-          <Bot size={22} color="#34d399" />
-          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#f1f5f9' }}>AI Agent</h1>
+          <Bot size={22} color="var(--accent)" />
+          <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--foreground)' }}>AI Agent</h1>
         </div>
-        <div style={{ background: '#1e293b', borderRadius: 10, padding: 24, border: '1px solid #334155', textAlign: 'center' }}>
-          <Bot size={40} color="#334155" style={{ marginBottom: 12 }} />
-          <div style={{ color: '#f1f5f9', fontWeight: 600, marginBottom: 8 }}>AI Agent is not enabled</div>
-          <div style={{ color: '#64748b', fontSize: 13, marginBottom: 20 }}>
+        <div style={{ background: 'var(--card)', borderRadius: 10, padding: 24, border: '1px solid var(--border)', textAlign: 'center' }}>
+          <Bot size={40} color="var(--muted-foreground)" style={{ marginBottom: 12 }} />
+          <div style={{ color: 'var(--foreground)', fontWeight: 600, marginBottom: 8 }}>AI Agent is not enabled</div>
+          <div style={{ color: 'var(--secondary-foreground)', fontSize: 13, marginBottom: 20 }}>
             Enable the AI Agent in Settings and add your Anthropic API key to get started.
           </div>
           <button onClick={() => navigate('/settings?tab=agent')} style={btnPrimary}>
@@ -129,9 +129,9 @@ export default function AgentPage() {
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', maxWidth: 780, padding: '24px 24px 0' }}>
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
-        <Bot size={22} color="#34d399" />
-        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: '#f1f5f9' }}>AI Agent</h1>
-        <span style={{ marginLeft: 'auto', fontSize: 12, color: '#64748b' }}>
+        <Bot size={22} color="var(--accent)" />
+        <h1 style={{ margin: 0, fontSize: 20, fontWeight: 700, color: 'var(--foreground)' }}>AI Agent</h1>
+        <span style={{ marginLeft: 'auto', fontSize: 12, color: 'var(--secondary-foreground)' }}>
           Ask anything about your data pipelines
         </span>
       </div>
@@ -140,8 +140,8 @@ export default function AgentPage() {
       <div style={{ flex: 1, overflowY: 'auto', marginBottom: 16, paddingRight: 4 }}>
         {visibleMessages.length === 0 && (
           <div style={{ textAlign: 'center', paddingTop: 60 }}>
-            <Bot size={48} color="#1e3a2e" style={{ marginBottom: 16 }} />
-            <div style={{ color: '#94a3b8', fontSize: 15, marginBottom: 24 }}>
+            <Bot size={48} color="var(--muted)" style={{ marginBottom: 16 }} />
+            <div style={{ color: 'var(--secondary-foreground)', fontSize: 15, marginBottom: 24 }}>
               Hi! I can help you manage your Dremio data pipelines.<br />
               What would you like to do?
             </div>
@@ -180,19 +180,19 @@ export default function AgentPage() {
                   <div style={{
                     width: 28, height: 28, borderRadius: '50%', flexShrink: 0,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    background: msg.role === 'user' ? '#334155' : '#064e3b',
+                    background: msg.role === 'user' ? 'var(--muted)' : 'var(--selected)',
                   }}>
                     {msg.role === 'user'
-                      ? <User size={14} color="#94a3b8" />
-                      : <Bot size={14} color="#34d399" />}
+                      ? <User size={14} color="var(--secondary-foreground)" />
+                      : <Bot size={14} color="var(--accent)" />}
                   </div>
                   <div style={{
                     maxWidth: '75%',
-                    background: msg.role === 'user' ? '#1e293b' : '#0f2027',
-                    border: `1px solid ${msg.role === 'user' ? '#334155' : '#164e35'}`,
+                    background: msg.role === 'user' ? 'var(--card)' : 'var(--selected)',
+                    border: `1px solid ${msg.role === 'user' ? 'var(--border)' : 'var(--border)'}`,
                     borderRadius: msg.role === 'user' ? '12px 4px 12px 12px' : '4px 12px 12px 12px',
                     padding: '10px 14px',
-                    color: '#e2e8f0',
+                    color: 'var(--foreground)',
                     fontSize: 14,
                     lineHeight: 1.6,
                     whiteSpace: 'pre-wrap',
@@ -207,13 +207,13 @@ export default function AgentPage() {
 
         {loading && (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-            <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#064e3b', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Bot size={14} color="#34d399" />
+            <div style={{ width: 28, height: 28, borderRadius: '50%', background: 'var(--selected)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Bot size={14} color="var(--accent)" />
             </div>
             <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
               {[0, 1, 2].map(n => (
                 <div key={n} style={{
-                  width: 7, height: 7, borderRadius: '50%', background: '#34d399',
+                  width: 7, height: 7, borderRadius: '50%', background: 'var(--primary)',
                   animation: 'pulse 1.2s ease-in-out infinite',
                   animationDelay: `${n * 0.2}s`,
                   opacity: 0.7,
@@ -224,7 +224,7 @@ export default function AgentPage() {
         )}
 
         {error && (
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 8, background: '#450a0a', color: '#f87171', fontSize: 13, marginBottom: 12 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '10px 14px', borderRadius: 8, background: 'var(--status-error-bg)', color: 'var(--status-error)', fontSize: 13, marginBottom: 12 }}>
             <AlertCircle size={14} /> {error}
           </div>
         )}
@@ -233,7 +233,7 @@ export default function AgentPage() {
       </div>
 
       {/* Input bar */}
-      <div style={{ padding: '12px 0 20px', borderTop: '1px solid #1e293b' }}>
+      <div style={{ padding: '12px 0 20px', borderTop: '1px solid var(--border)' }}>
         <div style={{ display: 'flex', gap: 10, alignItems: 'flex-end' }}>
           <textarea
             ref={inputRef}
@@ -243,8 +243,8 @@ export default function AgentPage() {
             placeholder="Ask something… (Enter to send, Shift+Enter for new line)"
             rows={1}
             style={{
-              flex: 1, resize: 'none', background: '#1e293b', border: '1px solid #334155',
-              borderRadius: 10, padding: '10px 14px', color: '#e2e8f0', fontSize: 14,
+              flex: 1, resize: 'none', background: '#fff', border: '1px solid var(--border)',
+              borderRadius: 10, padding: '10px 14px', color: 'var(--foreground)', fontSize: 14,
               outline: 'none', lineHeight: 1.5, maxHeight: 120, overflow: 'auto',
               fontFamily: 'inherit',
             }}
@@ -269,7 +269,7 @@ export default function AgentPage() {
         {messages.length > 0 && (
           <button
             onClick={() => { setMessages([]); setError(null) }}
-            style={{ marginTop: 8, background: 'none', border: 'none', color: '#475569', fontSize: 12, cursor: 'pointer', padding: 0 }}
+            style={{ marginTop: 8, background: 'none', border: 'none', color: 'var(--muted-foreground)', fontSize: 12, cursor: 'pointer', padding: 0 }}
           >
             Clear conversation
           </button>
@@ -289,14 +289,14 @@ export default function AgentPage() {
 const btnPrimary: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 6,
   padding: '8px 16px', borderRadius: 8, border: 'none', cursor: 'pointer',
-  background: '#34d399', color: '#0f172a', fontWeight: 600, fontSize: 13,
+  background: 'var(--primary)', color: '#fff', fontWeight: 600, fontSize: 13,
 }
 const starterBtn: React.CSSProperties = {
-  padding: '8px 14px', borderRadius: 20, border: '1px solid #334155',
-  background: '#1e293b', color: '#94a3b8', fontSize: 13, cursor: 'pointer',
+  padding: '8px 14px', borderRadius: 20, border: '1px solid var(--border)',
+  background: 'var(--card)', color: 'var(--secondary-foreground)', fontSize: 13, cursor: 'pointer',
 }
 const toolBadge: React.CSSProperties = {
   display: 'inline-flex', alignItems: 'center', gap: 4,
   padding: '2px 8px', borderRadius: 10, fontSize: 11,
-  background: '#1e2f1e', color: '#4ade80', border: '1px solid #166534',
+  background: 'var(--status-success-bg)', color: 'var(--status-success)', border: '1px solid var(--status-success)',
 }
